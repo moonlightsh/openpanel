@@ -206,6 +206,17 @@ export const reportSlice = createSlice({
         ready: true,
         funnelStepsNotice: [],
       };
+      // reconcileFunnelSteps writes into `options`, but the spread above keeps
+      // the frozen options object from the previous state (redux freezes
+      // nested state). Clone it so reconciliation can mutate safely.
+      if (next.options) {
+        next.options = {
+          ...next.options,
+          ...(next.options.type === 'funnel' && next.options.funnelSteps
+            ? { funnelSteps: next.options.funnelSteps.map((step) => ({ ...step })) }
+            : {}),
+        };
+      }
       // A saved report can already contain orphans (saved before this
       // reconciliation existed, or written by another client).
       reconcileFunnelSteps(next);
