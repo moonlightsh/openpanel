@@ -12,8 +12,10 @@ export const TEST_ORG_ID = 'integration-org';
 // globalSetup runs in the parent process before vitest workers start,
 // so vitest's `env` config is not applied — set defaults explicitly.
 function setEnvDefaults() {
+  // PGPORT overrides the default when a local postgres already owns 5432
+  // (tests then run against the compose Postgres remapped to 55432).
   process.env.DATABASE_URL ??=
-    'postgresql://postgres:postgres@localhost:5432/postgres?schema=public';
+    `postgresql://postgres:postgres@localhost:${process.env.PGPORT ?? '5432'}/postgres?schema=public`;
   process.env.CLICKHOUSE_URL ??= 'http://localhost:8123/openpanel';
 }
 
