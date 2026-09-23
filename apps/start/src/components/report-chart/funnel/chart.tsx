@@ -1,5 +1,4 @@
 import { getPreviousMetric } from '@openpanel/common';
-import { alphabetIds } from '@openpanel/constants';
 import { ChevronRightIcon, InfoIcon, UsersIcon } from 'lucide-react';
 import { useCallback } from 'react';
 import {
@@ -139,6 +138,7 @@ export function Tables({
       breakdowns: reportBreakdowns,
       previous,
       options,
+      globalFilters: reportGlobalFilters,
     },
   } = useReportChartContext();
 
@@ -165,8 +165,10 @@ export function Tables({
         chartType: 'funnel',
         metric: 'sum',
         options: funnelOptions,
+        globalFilters: reportGlobalFilters,
       },
       stepIndex,
+      stepCount: steps.length,
       breakdownValues: breakdowns,
     });
   };
@@ -236,7 +238,7 @@ export function Tables({
                 </Tooltiper>
               }
               label="Most dropoffs after"
-              value={mostDropoffsStep?.event?.displayName}
+              value={mostDropoffsStep?.displayName}
             />
           )}
         </div>
@@ -247,13 +249,13 @@ export function Tables({
           columnClassName="px-2 group/row items-center"
           columns={[
             {
-              name: 'Event',
+              name: 'Step',
               render: (item, index) => (
                 <div className="row relative min-w-0 items-center gap-2">
                   <ColorSquare color={getChartColor(index)}>
-                    {alphabetIds[index]}
+                    {index + 1}
                   </ColorSquare>
-                  <span className="truncate">{item.event.displayName}</span>
+                  <span className="truncate">{item.displayName}</span>
                 </div>
               ),
               width: 'w-full',
@@ -288,7 +290,7 @@ export function Tables({
                   onClick={(e) => {
                     e.stopPropagation();
                     const stepIndex = steps.findIndex(
-                      (s) => s.event.id === item.event.id
+                      (s) => s.stepId === item.stepId
                     );
                     handleInspectStep(item, stepIndex);
                   }}
@@ -323,7 +325,7 @@ export function Tables({
               </div>
             );
           }}
-          keyExtractor={(item) => item.event.id!}
+          keyExtractor={(item) => item.stepId}
         />
       </div>
     </div>
@@ -368,8 +370,8 @@ const useRechartData = ({
   return (
     firstFunnel?.steps.map((step, stepIndex) => {
       return {
-        id: step?.event.id ?? '',
-        name: step?.event.displayName ?? '',
+        id: step?.stepId ?? '',
+        name: step?.displayName ?? '',
         ...visibleBreakdowns.reduce((acc, visibleItem, visibleIdx) => {
           // Find the original index for this visible breakdown
           const originalIndex = current.findIndex(
@@ -557,8 +559,8 @@ export function Chart({
               interval="preserveStartEnd"
               scale="auto"
               tickFormatter={(id) =>
-                data.current[0].steps.find((step) => step.event.id === id)
-                  ?.event.displayName ?? ''
+                data.current[0].steps.find((step) => step.stepId === id)
+                  ?.displayName ?? ''
               }
               tickMargin={4}
               tickSize={0}
@@ -639,7 +641,7 @@ const { Tooltip, TooltipProvider } = createChartTooltip<
   ) as `step:data:${number}`[];
 
   const index = context.data[0].steps.findIndex(
-    (step) => step.event.id === (data as any).id
+    (step) => step.stepId === (data as any).id
   );
 
   // Filter variants to only show visible breakdowns
