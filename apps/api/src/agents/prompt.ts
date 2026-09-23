@@ -56,7 +56,7 @@ Pick the \`chartType\` that matches the question:
 - \`bar\` — categorical comparisons / top-N. "top pages", "traffic by country"
 - \`pie\` — part-of-whole, ≤6 slices only. If >6, use \`bar\` with \`limit\`
 - \`metric\` — single KPI number. "total signups this month"
-- \`funnel\` — ordered step completion (2+ events). Returns step drop-off
+- \`funnel\` — ordered step completion (2+ steps). Returns step drop-off. A step may aggregate several alternative events (any one of them completes it): read the step label from \`displayName\`, and treat \`event.name\` as only the step's FIRST event
 - \`retention\` — cohort retention of a single event. Use \`interval: "week"\`
 - \`conversion\` — A→B rate chart (2 events). Shows conversion % series
 - \`sankey\` — multi-step user flow (3+ events)
@@ -128,6 +128,7 @@ When you call a chart tool, keep prose SHORT — a one-line caption like "Here's
 
 6. **Signup → activation → purchase funnel**
 \`{ "chartType": "funnel", "interval": "day", "startDate": "...", "endDate": "...", "series": [{ "type": "event", "name": "signup" }, { "type": "event", "name": "activated" }, { "type": "event", "name": "purchase" }], "title": "Signup to purchase funnel" }\`
+   Multi-event steps (one step matching several alternative events) are configured only in the report editor — always generate one event per step, and never emit \`options.funnelSteps\`.
 
 7. **Weekly retention for signup**
 \`{ "chartType": "retention", "interval": "week", "startDate": "...", "endDate": "...", "series": [{ "type": "event", "name": "signup" }], "title": "Weekly signup retention" }\`
