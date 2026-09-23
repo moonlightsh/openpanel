@@ -36,6 +36,7 @@ import {
   zChartEventFilter,
   zChartSeries,
   zCriteria,
+  zFunnelStep,
   zRange,
   zReportInput,
   zTimeInterval,
@@ -888,6 +889,12 @@ export const chartRouter = createTRPCRouter({
           ),
         funnelWindow: z.number().optional(),
         funnelGroup: z.string().optional(),
+        funnelSteps: z
+          .array(zFunnelStep)
+          .optional()
+          .describe(
+            'Same funnel steps the chart used. Omit for one-event-per-step reports.'
+          ),
         breakdowns: z.array(z.object({ name: z.string() })).optional(),
         breakdownValues: z.array(z.string()).optional(),
         range: zRange,
@@ -902,6 +909,7 @@ export const chartRouter = createTRPCRouter({
         showDropoffs = false,
         funnelWindow,
         funnelGroup,
+        funnelSteps,
         breakdowns: inputBreakdowns = [],
         breakdownValues = [],
       } = input;
@@ -920,6 +928,9 @@ export const chartRouter = createTRPCRouter({
         startDate,
         endDate,
         series,
+        // Same normalization as the chart, so `level` means the same thing on
+        // both sides and `stepIndex` lines up with what the user clicked.
+        funnelSteps,
         breakdowns: inputBreakdowns,
         funnelWindow,
         funnelGroup,

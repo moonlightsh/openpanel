@@ -315,10 +315,21 @@ function ChartUsersView({ chartData, report, date }: ChartUsersViewProps) {
 interface FunnelUsersViewProps {
   report: IReportInput;
   stepIndex: number;
+  /**
+   * Authoritative step count from the funnel result. NOT `report.series.length`
+   * — with multi-event steps a funnel has fewer steps than event
+   * configurations, which would put the "last step" check on the wrong row.
+   */
+  stepCount: number;
   breakdownValues?: string[];
 }
 
-function FunnelUsersView({ report, stepIndex, breakdownValues }: FunnelUsersViewProps) {
+function FunnelUsersView({
+  report,
+  stepIndex,
+  stepCount,
+  breakdownValues,
+}: FunnelUsersViewProps) {
   const trpc = useTRPC();
   const [showDropoffs, setShowDropoffs] = useState(false);
 
@@ -347,6 +358,10 @@ function FunnelUsersView({ report, stepIndex, breakdownValues }: FunnelUsersView
           report.options?.type === 'funnel'
             ? report.options.funnelGroup
             : undefined,
+        funnelSteps:
+          report.options?.type === 'funnel'
+            ? report.options.funnelSteps
+            : undefined,
         breakdowns: report.breakdowns,
         breakdownValues: breakdownValues,
       },
@@ -356,7 +371,7 @@ function FunnelUsersView({ report, stepIndex, breakdownValues }: FunnelUsersView
     ),
   );
 
-  const isLastStep = stepIndex === report.series.length - 1;
+  const isLastStep = stepIndex === stepCount - 1;
 
   return (
     <ScrollableModal
@@ -366,8 +381,8 @@ function FunnelUsersView({ report, stepIndex, breakdownValues }: FunnelUsersView
             title="View Users"
             text={
               showDropoffs
-                ? `Users who dropped off after step ${stepIndex + 1} of ${report.series.length}`
-                : `Users who completed step ${stepIndex + 1} of ${report.series.length} in the funnel`
+                ? `Users who dropped off after step ${stepIndex + 1} of ${stepCount}`
+                : `Users who completed step ${stepIndex + 1} of ${stepCount} in the funnel`
             }
           />
           {!isLastStep && (
@@ -420,6 +435,7 @@ type ViewChartUsersProps =
       type: 'funnel';
       report: IReportInput;
       stepIndex: number;
+      stepCount: number;
       breakdownValues?: string[];
     };
 
@@ -427,7 +443,12 @@ type ViewChartUsersProps =
 export default function ViewChartUsers(props: ViewChartUsersProps) {
   if (props.type === 'funnel') {
     return (
-      <FunnelUsersView report={props.report} stepIndex={props.stepIndex} breakdownValues={props.breakdownValues} />
+      <FunnelUsersView
+        report={props.report}
+        stepIndex={props.stepIndex}
+        stepCount={props.stepCount}
+        breakdownValues={props.breakdownValues}
+      />
     );
   }
 
