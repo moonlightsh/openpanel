@@ -1,6 +1,6 @@
-import { changeVisibleSeries } from '@/components/report/reportSlice';
+import { changeVisibleSeries, selectFunnelConfigError } from '@/components/report/reportSlice';
 import { useTRPC } from '@/integrations/trpc/react';
-import { useDispatch } from '@/redux';
+import { useDispatch, useSelector } from '@/redux';
 import type { RouterOutputs } from '@/trpc/client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -19,6 +19,7 @@ export function ReportFunnelChart() {
   const chartInput = useChartInput();
   const dispatch = useDispatch();
   const trpc = useTRPC();
+  const funnelError = useSelector(selectFunnelConfigError);
   const res = useQuery(
     trpc.chart.funnel.queryOptions(
       {
@@ -26,7 +27,7 @@ export function ReportFunnelChart() {
         shareId,
       },
       {
-        enabled: !isLazyLoading && chartInput.series.length > 0,
+        enabled: !isLazyLoading && chartInput.series.length > 0 && !funnelError,
       },
     ),
   );
@@ -43,6 +44,14 @@ export function ReportFunnelChart() {
 
   if (isLazyLoading || res.isLoading) {
     return <Loading />;
+  }
+
+  if (funnelError) {
+    return (
+      <div className="text-sm text-red-500" role="alert">
+        {funnelError}
+      </div>
+    );
   }
 
   if (res.isError) {

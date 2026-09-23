@@ -14,6 +14,7 @@ import {
 
 import { useParams } from '@tanstack/react-router';
 import { resetDirty } from './reportSlice';
+import { selectFunnelConfigError } from './reportSlice';
 
 interface ReportSaveButtonProps {
   className?: string;
@@ -45,13 +46,17 @@ export function ReportSaveButton({ className }: ReportSaveButtonProps) {
     }),
   );
   const report = useSelector((state) => state.report);
+  // A funnel with an empty step or a dangling reference is an editing state,
+  // not a saveable report — block the button and show why.
+  const funnelError = useSelector(selectFunnelConfigError);
   const isLoading = update.isPending || fetching.some((f) => f !== 0);
 
   if (reportId) {
     return (
       <Button
         className={className}
-        disabled={!report.dirty}
+        disabled={!report.dirty || Boolean(funnelError)}
+        title={funnelError ?? undefined}
         loading={update.isPending || isLoading}
         onClick={() => {
           update.mutate({
@@ -68,7 +73,8 @@ export function ReportSaveButton({ className }: ReportSaveButtonProps) {
   return (
     <Button
       className={className}
-      disabled={!report.dirty}
+      disabled={!report.dirty || Boolean(funnelError)}
+      title={funnelError ?? undefined}
       onClick={() => {
         pushModal('SaveReport', {
           report,
