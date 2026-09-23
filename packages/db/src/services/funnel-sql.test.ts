@@ -12,6 +12,7 @@
  * http://localhost:8123/openpanel). All tests auto-skip if CH is unreachable.
  */
 import type { IChartBreakdown, IReportInput } from '@openpanel/validation';
+import { resolveFunnelSteps } from '@openpanel/validation';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 const mockCohortFindMany = vi.hoisted(() => vi.fn());
@@ -45,6 +46,20 @@ const breakdown = (name: string): IChartBreakdown => ({ id: name, name });
 
 const SERIES = [event({ id: 'A' }), event({ id: 'B', name: 'sign_up' })];
 
+const MULTI_SERIES = [
+  event({ id: 'a', name: 'cloud_exposed' }),
+  event({ id: 'b', name: 'confirm_d1c' }),
+  event({ id: 'c', name: 'confirm_other' }),
+  event({ id: 'd', name: 'finished_d1c' }),
+  event({ id: 'e', name: 'finished_other' }),
+];
+
+const MULTI_STEPS = [
+  { id: 's1', eventIds: ['a'] },
+  { id: 's2', eventIds: ['b', 'c'] },
+  { id: 's3', eventIds: ['d', 'e'] },
+];
+
 let chReachable = false;
 
 async function explain(sql: string): Promise<void> {
@@ -76,6 +91,34 @@ async function buildChartSql(breakdowns: IChartBreakdown[]) {
     endDate: END,
     series: SERIES,
     breakdowns,
+    funnelWindow: 24,
+    timezone: 'UTC',
+  });
+  query.with('funnel', 'SELECT * FROM session_funnel WHERE level != 0');
+  query
+    .select([
+      'level',
+      ...resolved.map((_, index) => `b_${index}`),
+      'count() as count',
+    ])
+    .from('funnel')
+    .groupBy(['level', ...resolved.map((_, index) => `b_${index}`)]);
+  return query.toSQL();
+}
+
+/** Mirrors the chart, but with explicit multi-event steps. */
+async function buildStepsSql(overrides: {
+  series?: ISeriesItem[];
+  funnelSteps?: { id: string; eventIds: string[] }[];
+  breakdowns?: IChartBreakdown[];
+}) {
+  const { query, breakdowns: resolved } = await funnelService.buildFunnelBase({
+    projectId: PROJECT_ID,
+    startDate: START,
+    endDate: END,
+    series: overrides.series ?? MULTI_SERIES,
+    funnelSteps: overrides.funnelSteps ?? MULTI_STEPS,
+    breakdowns: overrides.breakdowns ?? [],
     funnelWindow: 24,
     timezone: 'UTC',
   });
@@ -417,5 +460,136 @@ describe('funnel.service / profile-property narrowing', () => {
       .from('funnel')
       .groupBy(['level', ...resolved.map((_, index) => `b_${index}`)]);
     await explain(query.toSQL());
+  });
+});
+
+describe('funnel.service / buildFunnelBase — multi-event steps', () => {
+  const countOccurrences = (sql: string, needle: string) =>
+    sql.split(needle).length - 1;
+
+  it('passes one OR-merged condition per step to windowFunnel', async () => {
+    const sql = await buildStepsSql({});
+    // 3 steps -> 3 windowFunnel condition arguments, not 5.
+    const windowFunnel = sql.slice(
+      sql.indexOf('windowFunnel'),
+      sql.indexOf('AS level'),
+    );
+    expect(countOccurrences(windowFunnel, "events.name = 'confirm_d1c'")).toBe(1);
+    expect(windowFunnel).toContain(
+      "((events.name = 'confirm_d1c')) OR ((events.name = 'confirm_other'))",
+    );
+    expect(windowFunnel).toContain(
+      "((events.name = 'finished_d1c')) OR ((events.name = 'finished_other'))",
+    );
+  });
+
+  it('repeats each step condition exactly twice (windowFunnel + pre-filter)', async () => {
+    const sql = await buildStepsSql({});
+    const { steps } = resolveFunnelSteps({
+      series: onlyReportEvents(MULTI_SERIES),
+      funnelSteps: MULTI_STEPS,
+    });
+    for (const condition of funnelService.getStepConditions(steps, PROJECT_ID)) {
+      expect(countOccurrences(sql, condition)).toBe(2);
+    }
+  });
+
+  it('keeps each alternate own filters inside the OR arm', async () => {
+    const sql = await buildStepsSql({
+      series: [
+        event({ id: 'a', name: 'cloud_exposed' }),
+        event({
+          id: 'b',
+          name: 'confirm',
+          filters: [
+            { id: 'f1', name: 'properties.plan', operator: 'is', value: ['pro'] },
+          ],
+        }),
+        event({
+          id: 'c',
+          name: 'confirm',
+          filters: [
+            { id: 'f2', name: 'properties.plan', operator: 'is', value: ['ent'] },
+          ],
+        }),
+      ],
+      funnelSteps: [
+        { id: 's1', eventIds: ['a'] },
+        { id: 's2', eventIds: ['b', 'c'] },
+      ],
+    });
+    expect(sql).toContain("'pro'");
+    expect(sql).toContain("'ent'");
+    // The pre-filter must not let a `confirm` row through on the name alone.
+    expect(sql).not.toMatch(/\(\(events\.name = 'confirm'\)\) OR/);
+  });
+
+  it('deduplicates the name IN(...) list across alternates', async () => {
+    const sql = await buildStepsSql({
+      series: [
+        event({ id: 'a', name: 'cloud_exposed' }),
+        event({ id: 'b', name: 'confirm' }),
+        event({ id: 'c', name: 'confirm' }),
+      ],
+      funnelSteps: [
+        { id: 's1', eventIds: ['a'] },
+        { id: 's2', eventIds: ['b', 'c'] },
+      ],
+    });
+    const inList = sql.slice(sql.indexOf('events.name IN'));
+    expect(countOccurrences(inList.slice(0, inList.indexOf(')')), "'confirm'")).toBe(1);
+  });
+});
+
+describe('funnel.service / buildFunnelBase — orphan events', () => {
+  const ORPHAN_SERIES = [
+    ...MULTI_SERIES,
+    event({
+      id: 'orphan',
+      name: 'unrelated_event',
+      filters: [
+        {
+          id: 'f9',
+          name: 'profile.properties.plan',
+          operator: 'is',
+          value: ['pro'],
+        },
+      ],
+    }),
+  ];
+
+  it('keeps an unreferenced event out of the scan and out of the joins', async () => {
+    const sql = await buildStepsSql({ series: ORPHAN_SERIES });
+    expect(sql).not.toContain('unrelated_event');
+    // The orphan carried the only profile.* filter, so no profiles join may
+    // appear — an orphan must not widen the scan or add a join.
+    expect(sql).not.toMatch(/as profile/);
+    expect(sql).not.toContain('profile.id = events.profile_id');
+  });
+});
+
+describe('funnel.service / buildFunnelBase — multi-event entry breakdown', () => {
+  it('attributes the breakdown on the OR of every first-step alternate', async () => {
+    const sql = await buildStepsSql({
+      funnelSteps: [
+        { id: 's1', eventIds: ['a', 'b'] },
+        { id: 's2', eventIds: ['c'] },
+        { id: 's3', eventIds: ['d', 'e'] },
+      ],
+      breakdowns: [breakdown('properties.source')],
+    });
+    const argMin = sql.slice(sql.indexOf('argMinIf('));
+    expect(argMin.slice(0, argMin.indexOf(') as b_0'))).toContain(
+      "((events.name = 'cloud_exposed')) OR ((events.name = 'confirm_d1c'))",
+    );
+  });
+
+  itCH('multi-event step SQL parses and resolves', async () => {
+    await explain(await buildStepsSql({}));
+    await explain(
+      await buildStepsSql({
+        breakdowns: [breakdown('properties.source'), breakdown('group.company.name')],
+      }),
+    );
   });
 });
