@@ -5,7 +5,7 @@ import {
   getId,
   getProjectById,
 } from '@openpanel/db';
-import { zReport } from '@openpanel/validation';
+import { assertFunnelConfig, zReport } from '@openpanel/validation';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { McpAuthContext } from '../auth';
@@ -125,6 +125,15 @@ function dashboardUrl(organizationId: string, projectId: string, dashboardId: st
 
 function reportUrl(organizationId: string, projectId: string, reportId: string) {
   return `${dashboardBaseUrl()}/${organizationId}/${projectId}/reports/${reportId}`;
+}
+
+/**
+ * MCP / Agent writes go through the same cross-field funnel check as the
+ * dashboard. `withErrorHandling` turns the thrown message into a tool error,
+ * which is what an agent needs to fix its own payload.
+ */
+function assertStorable(report: z.infer<typeof reportSchema>) {
+  assertFunnelConfig(report as Parameters<typeof assertFunnelConfig>[0]);
 }
 
 function reportData(report: z.infer<typeof reportSchema>) {
@@ -417,6 +426,7 @@ export function registerDashboardManagementTools(
       withErrorHandling(async () => {
         const projectId = await resolveProjectId(context, inputProjectId);
         const dashboard = await requireDashboard(projectId, dashboardId);
+        assertStorable(report);
         const created = await db.report.create({
           data: {
             projectId: dashboard.projectId,
@@ -443,6 +453,7 @@ export function registerDashboardManagementTools(
       withErrorHandling(async () => {
         const projectId = await resolveProjectId(context, inputProjectId);
         await requireReport(projectId, reportId);
+        assertStorable(report);
         const updated = await db.report.update({
           where: { id: reportId },
           data: reportData(report),
