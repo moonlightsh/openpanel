@@ -593,3 +593,60 @@ describe('funnel.service / buildFunnelBase — multi-event entry breakdown', () 
     );
   });
 });
+
+describe('funnel.service / getFunnel — steps[].event compatibility', () => {
+  // Four external exits serialize this object verbatim: MCP run_report, MCP /
+  // Agent generate_report, the Agent dashboard tool, and the public Insights
+  // endpoint /:projectId/reports/:reportId/data. A single-event funnel must
+  // therefore keep every field, including the globally-merged `filters`.
+  const STEP_FILTERS = [
+    { id: 'f1', name: 'properties.path', operator: 'is' as const, value: ['/x'] },
+  ];
+  const SINGLE_SERIES = [
+    event({
+      id: 'a',
+      name: 'screen_view',
+      displayName: 'Viewed',
+      property: 'revenue',
+      filters: STEP_FILTERS,
+    }),
+  ];
+  const GLOBAL_FILTERS = [
+    { id: 'g1', name: 'country', operator: 'is' as const, value: ['US'] },
+  ];
+
+  itCH('single-event step exposes the full event, only displayName overridden', async () => {
+    const [series] = await funnelService.getFunnel({
+      projectId: PROJECT_ID,
+      startDate: START,
+      endDate: END,
+      series: SINGLE_SERIES,
+      globalFilters: GLOBAL_FILTERS,
+      breakdowns: [],
+      chartType: 'funnel',
+      interval: 'day',
+      range: 'custom',
+      previous: false,
+      metric: 'sum',
+      options: { type: 'funnel', funnelWindow: 24 },
+      timezone: 'UTC',
+    } as never);
+
+    const step = series!.steps[0]!;
+    expect(step.event).toEqual({
+      id: 'a',
+      type: 'event',
+      name: 'screen_view',
+      displayName: 'Viewed',
+      segment: 'event',
+      property: 'revenue',
+      // Global filters are prepended by mergeGlobalFilters and have always
+      // been visible on this field.
+      filters: [...GLOBAL_FILTERS, ...STEP_FILTERS],
+    });
+    expect(step.stepId).toBe('a');
+    expect(step.stepIndex).toBe(0);
+    expect(step.displayName).toBe('Viewed');
+    expect(step.events).toEqual([step.event]);
+  });
+});

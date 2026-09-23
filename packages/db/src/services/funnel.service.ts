@@ -537,7 +537,7 @@ export class FunnelService {
 
     const {
       query: funnelQuery,
-      eventSeries,
+      steps: resolvedSteps,
       breakdowns,
     } = await this.buildFunnelBase({
       projectId,
@@ -548,6 +548,7 @@ export class FunnelService {
       breakdowns: initialBreakdowns,
       funnelWindow: funnelOptions?.funnelWindow,
       funnelGroup: funnelOptions?.funnelGroup,
+      funnelSteps: funnelOptions?.funnelSteps,
       timezone,
     });
 
@@ -577,7 +578,11 @@ export class FunnelService {
 
     return funnelSeries
       .map((data) => {
-        const maxLevel = eventSeries.length;
+        // Levels, zero-fill, conversion and drop-off are all counted in STEPS.
+        // With multi-event steps the event count is larger than the step count.
+        // (`resolvedSteps` — the inner `steps` below shadows a same-named
+        // binding, which would be a TDZ error.)
+        const maxLevel = resolvedSteps.length;
         const filledFunnelRes = this.fillFunnel(
           data.map((d) => ({ level: d.level, count: d.count })),
           maxLevel,
@@ -589,14 +594,43 @@ export class FunnelService {
             (acc, item, index, list) => {
               const prev = list[index - 1] ?? { count: totalSessions };
               const next = list[index + 1];
-              const event = eventSeries[item.level - 1]!;
+              const step = resolvedSteps[item.level - 1]!;
+              const primary = step.events[0]!;
+              const isMultiEvent = step.events.length > 1;
               return [
                 ...acc,
                 {
-                  event: {
-                    ...event,
-                    displayName: event.displayName || event.name,
-                  },
+                  stepId: step.id,
+                  stepIndex: step.stepIndex,
+                  displayName: step.displayName,
+                  events: step.events,
+                  /**
+                   * Compat field for the four exits that serialize this result
+                   * verbatim (MCP run_report, MCP/Agent generate_report, the
+                   * Agent dashboard tool, and the public Insights endpoint
+                   * /:projectId/reports/:reportId/data).
+                   *
+                   * Single-alternate step: the event configuration spread
+                   * as-is — every field, `filters` still carrying the merged
+                   * global filters — with only `displayName` resolved to the
+                   * step label. For a report without funnelSteps that label IS
+                   * `displayName || name`, so old reports are byte-identical.
+                   *
+                   * Multi-alternate step: `id` and `displayName` describe the
+                   * STEP; `name` is the first alternate and is diagnostic only;
+                   * `filters` is emptied because no single alternate's filters
+                   * describe the step, and leaving the first one would be read
+                   * as the whole step's condition. The real condition lives in
+                   * `events`.
+                   */
+                  event: isMultiEvent
+                    ? {
+                        ...primary,
+                        id: step.id,
+                        displayName: step.displayName,
+                        filters: [],
+                      }
+                    : { ...primary, displayName: step.displayName },
                   count: item.count,
                   percent: (item.count / totalSessions) * 100,
                   dropoffCount: next ? item.count - next.count : null,
@@ -609,6 +643,10 @@ export class FunnelService {
               ];
             },
             [] as {
+              stepId: string;
+              stepIndex: number;
+              displayName: string;
+              events: IChartEvent[];
               event: IChartEvent & { displayName: string };
               count: number;
               percent: number;
@@ -713,7 +751,10 @@ export async function getFunnelCore(input: {
 
   const steps = primarySeries.steps.map((step, index) => ({
     step: index + 1,
-    eventName: step.event.displayName || step.event.name,
+    // Step label, not event label: with multi-event steps `event.name` is only
+    // the first alternate. The Insights `eventName` field is unchanged for
+    // single-event funnels, which is all this endpoint can produce.
+    eventName: step.displayName,
     users: step.count,
     conversionRateFromStart: Math.round(step.percent * 100) / 100,
     dropoffPercent:
