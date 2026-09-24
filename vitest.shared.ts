@@ -19,8 +19,10 @@ export const getSharedVitestConfig = ({
     test: {
       setupFiles: [rootTestSetup(dirname)],
       env: {
-        // Always point at local Docker — never production, regardless of .env
-        DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/postgres?schema=public',
+        // Always point at local Docker — never production, regardless of .env.
+        // PGPORT overrides the port when the default is taken (e.g. a local
+        // homebrew postgres also listening on 5432; scripts use 55432 then).
+        DATABASE_URL: `postgresql://postgres:postgres@localhost:${process.env.PGPORT ?? '5432'}/postgres?schema=public`,
         CLICKHOUSE_URL: 'http://localhost:8123/openpanel',
         REDIS_URL: 'redis://localhost:6379',
         SELF_HOSTED: 'true',

@@ -17,6 +17,9 @@ export interface ReportSeriesItemProps
   showAddFilter: boolean;
   isSelectManyEvents: boolean;
   renderDragHandle?: (index: number) => React.ReactNode;
+  /** Hide the default letter badge — used by the funnel step cards where the
+      step card itself carries the numbering. */
+  hideBadge?: boolean;
 }
 
 export function ReportSeriesItem({
@@ -26,6 +29,7 @@ export function ReportSeriesItem({
   showAddFilter,
   isSelectManyEvents,
   renderDragHandle,
+  hideBadge = false,
   ...props
 }: ReportSeriesItemProps) {
   const dispatch = useDispatch();
@@ -44,7 +48,7 @@ export function ReportSeriesItem({
       <div className="flex items-center gap-2 p-2 group">
         {renderDragHandle ? (
           renderDragHandle(index)
-        ) : (
+        ) : hideBadge ? null : (
           <ColorSquare>
             <span className="block">{alphabetIds[index]}</span>
           </ColorSquare>

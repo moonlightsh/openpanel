@@ -8,6 +8,11 @@ import {
   isHourIntervalEnabledByRange,
   isMinuteIntervalEnabledByRange,
 } from '@openpanel/constants';
+import {
+  type IFunnelStep,
+  defaultStepDisplayName,
+  getFunnelConfigError,
+} from '@openpanel/validation';
 import type {
   IChartBreakdown,
   IChartEventFilter,
@@ -33,6 +38,12 @@ type InitialState = IReport & {
   // Always an array in state (initialState + setReport guarantee it) so the
   // reducers below can push/map without optional-chaining.
   globalFilters: IChartEventFilter[];
+  /**
+   * Event configurations dropped as orphans the last time the funnel editor
+   * was entered, for a one-time notice. Transient UI state: `zReport` strips
+   * it on save, like `dirty` / `ready`.
+   */
+  funnelStepsNotice: string[];
 };
 
 // First approach: define the initial state using that type
@@ -57,7 +68,118 @@ const initialState: InitialState = {
   limit: 500,
   options: undefined,
   visibleSeries: undefined,
+  funnelStepsNotice: [],
 };
+
+type FunnelOptions = Extract<IReportOptions, { type: 'funnel' }>;
+
+function ensureFunnelOptions(state: InitialState): FunnelOptions {
+  if (!state.options || state.options.type !== 'funnel') {
+    state.options = { type: 'funnel' };
+  }
+  return state.options as FunnelOptions;
+}
+
+function assignMissingIds(state: InitialState) {
+  for (const item of state.series) {
+    if (!item.id) {
+      // funnelSteps references must survive reordering, so a funnel can never
+      // rely on the positional alphabetId backfill the read path applies.
+      item.id = shortId();
+    }
+  }
+}
+
+/**
+ * Lazily turn a legacy funnel (flat series, no funnelSteps) into the explicit
+ * step shape, one event per step, preserving the current series order.
+ *
+ * Called by every step-level edit so that merely OPENING an old report never
+ * writes the new field — only editing it does.
+ */
+function materializeFunnelSteps(state: InitialState): IFunnelStep[] {
+  const options = ensureFunnelOptions(state);
+  if (options.funnelSteps) {
+    return options.funnelSteps;
+  }
+  const legacyEvents = state.series.filter((item) => item.type === 'event');
+  // Match the ids already used by selectFunnelStepViews. The first edit of a
+  // legacy step must not remount its card and drop focus from the name field.
+  const stepIds = legacyEvents.map((item, index) => item.id ?? `step-${index}`);
+  assignMissingIds(state);
+  options.funnelSteps = legacyEvents.map((item, index) => ({
+    id: stepIds[index]!,
+    eventIds: [item.id!],
+  }));
+  return options.funnelSteps;
+}
+
+function findStep(steps: IFunnelStep[], stepId: string) {
+  return steps.find((step) => step.id === stepId);
+}
+
+function dropSeriesByIds(state: InitialState, ids: Set<string>) {
+  state.series = state.series.filter((item) => !item.id || !ids.has(item.id));
+}
+
+/**
+ * Bring `funnelSteps` and the flat `series` back in sync when the funnel editor
+ * is (re)entered.
+ *
+ * `changeChartType` deliberately keeps `options`, so a report can come back to
+ * the funnel with events added or removed under another chart type. Recovery
+ * rules, matching the design doc:
+ *   - references to deleted events are dropped;
+ *   - a step emptied that way stays as an editable placeholder (and reads as
+ *     invalid, so it cannot be previewed or saved);
+ *   - orphan events are removed from the funnel's series and reported once.
+ * Reports without funnelSteps are untouched.
+ */
+function reconcileFunnelSteps(state: InitialState) {
+  state.funnelStepsNotice = [];
+  if (state.chartType !== 'funnel') {
+    return;
+  }
+  const options = state.options?.type === 'funnel' ? state.options : undefined;
+  const existing = options?.funnelSteps;
+  if (!options || !existing) {
+    return;
+  }
+
+  assignMissingIds(state);
+
+  const known = new Set(
+    state.series.filter((item) => item.type === 'event').map((item) => item.id!),
+  );
+  const claimed = new Set<string>();
+  options.funnelSteps = existing.map((step) => ({
+    ...step,
+    eventIds: step.eventIds.filter((id) => {
+      if (!known.has(id) || claimed.has(id)) {
+        return false;
+      }
+      claimed.add(id);
+      return true;
+    }),
+  }));
+
+  const orphans = state.series.filter(
+    (item) => item.type === 'event' && !claimed.has(item.id!),
+  );
+  if (orphans.length === 0) {
+    return;
+  }
+  state.funnelStepsNotice = orphans.map((item) =>
+    item.type === 'event' ? item.displayName || item.name : '',
+  );
+  // Formulas are left alone: the funnel ignores them (onlyReportEvents) and
+  // silently deleting a user's formula on a chart-type round trip would be a
+  // worse surprise than carrying it.
+  dropSeriesByIds(
+    state,
+    new Set(orphans.map((item) => item.id!)),
+  );
+}
 
 export const reportSlice = createSlice({
   name: 'report',
@@ -79,7 +201,7 @@ export const reportSlice = createSlice({
       };
     },
     setReport(state, action: PayloadAction<IReport>) {
-      return {
+      const next: InitialState = {
         ...state,
         ...action.payload,
         globalFilters: action.payload.globalFilters ?? [],
@@ -87,7 +209,23 @@ export const reportSlice = createSlice({
         endDate: action.payload.endDate ?? null,
         dirty: false,
         ready: true,
+        funnelStepsNotice: [],
       };
+      // reconcileFunnelSteps writes into `options`, but the spread above keeps
+      // the frozen options object from the previous state (redux freezes
+      // nested state). Clone it so reconciliation can mutate safely.
+      if (next.options) {
+        next.options = {
+          ...next.options,
+          ...(next.options.type === 'funnel' && next.options.funnelSteps
+            ? { funnelSteps: next.options.funnelSteps.map((step) => ({ ...step })) }
+            : {}),
+        };
+      }
+      // A saved report can already contain orphans (saved before this
+      // reconciliation existed, or written by another client).
+      reconcileFunnelSteps(next);
+      return next;
     },
     setName(state, action: PayloadAction<string>) {
       state.dirty = true;
@@ -228,6 +366,12 @@ export const reportSlice = createSlice({
         };
       }
 
+      // Entering the funnel: recover a step config that drifted while the
+      // report was another chart type.
+      if (action.payload === 'funnel') {
+        reconcileFunnelSteps(state);
+      }
+
       if (
         !isMinuteIntervalEnabledByRange(state.range) &&
         state.interval === 'minute'
@@ -339,6 +483,137 @@ export const reportSlice = createSlice({
       } else {
         state.options.funnelWindow = action.payload;
       }
+    },
+
+    addFunnelStep(state, action: PayloadAction<{ name: string }>) {
+      state.dirty = true;
+      const steps = materializeFunnelSteps(state);
+      const eventId = shortId();
+      state.series.push({
+        id: eventId,
+        type: 'event',
+        name: action.payload.name,
+        segment: 'event',
+        filters: [],
+      });
+      steps.push({ id: shortId(), eventIds: [eventId] });
+    },
+
+    addFunnelStepEvent(
+      state,
+      action: PayloadAction<{ stepId: string; name: string }>,
+    ) {
+      state.dirty = true;
+      const steps = materializeFunnelSteps(state);
+      const step = findStep(steps, action.payload.stepId);
+      if (!step) {
+        return;
+      }
+      const eventId = shortId();
+      state.series.push({
+        id: eventId,
+        type: 'event',
+        name: action.payload.name,
+        segment: 'event',
+        filters: [],
+      });
+      step.eventIds.push(eventId);
+    },
+
+    removeFunnelStepEvent(
+      state,
+      action: PayloadAction<{ stepId: string; eventId: string }>,
+    ) {
+      state.dirty = true;
+      const steps = materializeFunnelSteps(state);
+      const step = findStep(steps, action.payload.stepId);
+      if (!step) {
+        return;
+      }
+      // The step is kept even when it ends up empty: it stays an editable
+      // placeholder and the config reads as invalid until the user fills it.
+      step.eventIds = step.eventIds.filter((id) => id !== action.payload.eventId);
+      dropSeriesByIds(state, new Set([action.payload.eventId]));
+    },
+
+    removeFunnelStep(state, action: PayloadAction<{ stepId: string }>) {
+      state.dirty = true;
+      const options = ensureFunnelOptions(state);
+      const steps = materializeFunnelSteps(state);
+      const step = findStep(steps, action.payload.stepId);
+      if (!step) {
+        return;
+      }
+      options.funnelSteps = steps.filter((s) => s.id !== action.payload.stepId);
+      dropSeriesByIds(state, new Set(step.eventIds));
+    },
+
+    duplicateFunnelStep(state, action: PayloadAction<{ stepId: string }>) {
+      state.dirty = true;
+      const options = ensureFunnelOptions(state);
+      const steps = materializeFunnelSteps(state);
+      const index = steps.findIndex((s) => s.id === action.payload.stepId);
+      const step = steps[index];
+      if (!step) {
+        return;
+      }
+      const clonedIds: string[] = [];
+      for (const eventId of step.eventIds) {
+        const source = state.series.find((item) => item.id === eventId);
+        if (!source || source.type !== 'event') {
+          continue;
+        }
+        const cloneId = shortId();
+        clonedIds.push(cloneId);
+        state.series.push({
+          ...source,
+          id: cloneId,
+          filters: source.filters.map((filter) => ({
+            ...filter,
+            id: shortId(),
+          })),
+        });
+      }
+      const clone: IFunnelStep = {
+        id: shortId(),
+        displayName: step.displayName,
+        eventIds: clonedIds,
+      };
+      options.funnelSteps = [
+        ...steps.slice(0, index + 1),
+        clone,
+        ...steps.slice(index + 1),
+      ];
+    },
+
+    reorderFunnelSteps(
+      state,
+      action: PayloadAction<{ fromIndex: number; toIndex: number }>,
+    ) {
+      state.dirty = true;
+      const steps = materializeFunnelSteps(state);
+      const [moved] = steps.splice(action.payload.fromIndex, 1);
+      if (moved) {
+        steps.splice(action.payload.toIndex, 0, moved);
+      }
+    },
+
+    changeFunnelStepDisplayName(
+      state,
+      action: PayloadAction<{ stepId: string; displayName: string }>,
+    ) {
+      state.dirty = true;
+      const steps = materializeFunnelSteps(state);
+      const step = findStep(steps, action.payload.stepId);
+      if (step) {
+        // Empty string means "fall back to the event names", so store undefined
+        // rather than an empty label.
+        step.displayName = action.payload.displayName.trim() || undefined;
+      }
+    },
+
+    dismissFunnelStepsNotice(state) {
+      state.funnelStepsNotice = [];
     },
     changeOptions(state, action: PayloadAction<IReportOptions | undefined>) {
       state.dirty = true;
@@ -470,6 +745,69 @@ export const {
   changeStacked,
   reorderEvents,
   changeVisibleSeries,
+  addFunnelStep,
+  addFunnelStepEvent,
+  removeFunnelStepEvent,
+  removeFunnelStep,
+  duplicateFunnelStep,
+  reorderFunnelSteps,
+  changeFunnelStepDisplayName,
+  dismissFunnelStepsNotice,
 } = reportSlice.actions;
+
+export type IFunnelStepView = {
+  id: string;
+  /** User-typed label, if any. */
+  displayName?: string;
+  /** What the UI shows when `displayName` is empty. */
+  defaultDisplayName: string;
+  events: (IChartEventItem & { type: 'event' })[];
+};
+
+type ReportRootState = { report: InitialState };
+
+/**
+ * The step list to render. Works for legacy reports too: when `funnelSteps` is
+ * absent it derives a one-event-per-step view WITHOUT writing anything, so
+ * opening an old report leaves it untouched on disk.
+ */
+export function selectFunnelStepViews(
+  state: ReportRootState,
+): IFunnelStepView[] {
+  const { series, options } = state.report;
+  const events = series.filter(
+    (item): item is IChartEventItem & { type: 'event' } => item.type === 'event',
+  );
+  const steps = options?.type === 'funnel' ? options.funnelSteps : undefined;
+
+  if (!steps) {
+    return events.map((event, index) => ({
+      id: event.id ?? `step-${index}`,
+      displayName: undefined,
+      defaultDisplayName: defaultStepDisplayName([event]),
+      events: [event],
+    }));
+  }
+
+  return steps.map((step) => {
+    const stepEvents = step.eventIds
+      .map((id) => events.find((event) => event.id === id))
+      .filter((event): event is IChartEventItem & { type: 'event' } =>
+        Boolean(event),
+      );
+    return {
+      id: step.id,
+      displayName: step.displayName,
+      defaultDisplayName: defaultStepDisplayName(stepEvents),
+      events: stepEvents,
+    };
+  });
+}
+
+/** Non-null message when the current funnel config cannot be previewed/saved. */
+export function selectFunnelConfigError(state: ReportRootState): string | null {
+  const { chartType, series, options } = state.report;
+  return getFunnelConfigError({ chartType, series, options });
+}
 
 export default reportSlice.reducer;

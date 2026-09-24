@@ -4,6 +4,7 @@ import { useSelector } from '@/redux';
 
 import { ReportBreakdowns } from './ReportBreakdowns';
 import { ReportGlobalFilters } from './ReportGlobalFilters';
+import { ReportFunnelSteps } from './ReportFunnelSteps';
 import { ReportSeries } from './ReportSeries';
 import { ReportSettings } from './ReportSettings';
 import { ReportFixedEvents } from './report-fixed-events';
@@ -21,6 +22,8 @@ export function ReportSidebar() {
               options?.type === 'sankey' && options.mode === 'between' ? 2 : 1
             }
           />
+        ) : chartType === 'funnel' ? (
+          <ReportFunnelSteps />
         ) : (
           <ReportSeries />
         )}

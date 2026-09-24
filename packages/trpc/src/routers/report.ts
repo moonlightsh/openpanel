@@ -6,7 +6,11 @@ import {
   getReportById,
   getReportsByDashboardId,
 } from '@openpanel/db';
-import { zReport } from '@openpanel/validation';
+import {
+  FunnelConfigError,
+  assertFunnelConfig,
+  zReport,
+} from '@openpanel/validation';
 
 import { getProjectAccess, requireProjectAccess } from '../access';
 import {
@@ -15,6 +19,27 @@ import {
   TRPCNotFoundError,
 } from '../errors';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
+
+/**
+ * Funnel step references are cross-field (options -> series), which a zod
+ * object schema cannot express without breaking `zReport.extend/.omit` for the
+ * other consumers. Run the shared normalization here instead, so a report can
+ * never be stored in a shape getFunnel would have to reject.
+ */
+function assertReportIsStorable(report: {
+  chartType: string;
+  series: readonly { type: string; id?: string; name?: string }[];
+  options?: unknown;
+}) {
+  try {
+    assertFunnelConfig(report as Parameters<typeof assertFunnelConfig>[0]);
+  } catch (error) {
+    if (error instanceof FunnelConfigError) {
+      throw new TRPCBadRequestError(error.message);
+    }
+    throw error;
+  }
+}
 
 export const reportRouter = createTRPCRouter({
   list: protectedProcedure
@@ -50,6 +75,8 @@ export const reportRouter = createTRPCRouter({
         projectId: dashboard.projectId,
         level: 'write',
       });
+
+      assertReportIsStorable(report);
 
       return db.report.create({
         data: {
@@ -93,6 +120,8 @@ export const reportRouter = createTRPCRouter({
         projectId: dbReport.projectId,
         level: 'write',
       });
+
+      assertReportIsStorable(report);
 
       return db.report.update({
         where: {

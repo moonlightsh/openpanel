@@ -1,7 +1,10 @@
 import { ifNaN } from '@openpanel/common';
+import { resolveFunnelSteps } from '@openpanel/validation';
 import type {
   IChartBreakdown,
   IChartEvent,
+  IFunnelStep,
+  IResolvedFunnelStep,
   IReportInput,
 } from '@openpanel/validation';
 import { last, reverse, uniq } from 'ramda';
@@ -48,18 +51,53 @@ export class FunnelService {
     return group === 'profile_id' ? 'profile_id' : 'session_id';
   }
 
-  getFunnelConditions(events: IChartEvent[] = [], projectId?: string): string[] {
-    return events.map((event) => {
-      const { sb, getWhere } = createSqlBuilder();
-      // Qualify with 'events' so event-level `properties[...]` becomes
-      // `events.properties[...]` — required because the funnel CTE may join
-      // the profiles table (which also exposes a `properties` column).
-      // Without the qualifier ClickHouse fails with "ambiguous identifier
-      // 'properties'" whenever a step filters on properties.X while another
-      // step filters on profile.properties.Y.
-      sb.where = getEventFiltersWhereClause(event.filters, projectId, 'events');
-      sb.where.name = `events.name = ${sqlstring.escape(event.name)}`;
-      return getWhere().replace('WHERE ', '');
+  /**
+   * Complete SQL predicate for ONE event configuration: its event name AND its
+   * own filters (global filters are already merged into `event.filters` by the
+   * caller).
+   *
+   * Qualify with 'events' so event-level `properties[...]` becomes
+   * `events.properties[...]` — required because the funnel CTE may join the
+   * profiles table (which also exposes a `properties` column). Without the
+   * qualifier ClickHouse fails with "ambiguous identifier 'properties'"
+   * whenever one step filters on properties.X while another filters on
+   * profile.properties.Y.
+   */
+  getEventCondition(event: IChartEvent, projectId?: string): string {
+    const { sb, getWhere } = createSqlBuilder();
+    sb.where = getEventFiltersWhereClause(event.filters, projectId, 'events');
+    sb.where.name = `events.name = ${sqlstring.escape(event.name)}`;
+    return getWhere().replace('WHERE ', '');
+  }
+
+  getFunnelConditions(
+    events: IChartEvent[] = [],
+    projectId?: string,
+  ): string[] {
+    return events.map((event) => this.getEventCondition(event, projectId));
+  }
+
+  /**
+   * ONE predicate per funnel step. Alternates inside a step are OR'd, each arm
+   * parenthesised so an alternate's own AND-ed filters cannot leak across the
+   * OR.
+   *
+   * A single-alternate step returns the bare condition — byte-identical to
+   * what getFunnelConditions produced before multi-event steps existed — so
+   * legacy reports keep rendering the exact same SQL.
+   */
+  getStepConditions(
+    steps: { events: IChartEvent[] }[],
+    projectId?: string,
+  ): string[] {
+    return steps.map((step) => {
+      const conditions = step.events.map((event) =>
+        this.getEventCondition(event, projectId),
+      );
+      if (conditions.length === 1) {
+        return conditions[0]!;
+      }
+      return conditions.map((condition) => `(${condition})`).join(' OR ');
     });
   }
 
@@ -74,6 +112,7 @@ export class FunnelService {
     projectId,
     startDate,
     endDate,
+    steps,
     eventSeries,
     funnelWindowMilliseconds,
     timezone,
@@ -85,6 +124,9 @@ export class FunnelService {
     projectId: string;
     startDate: string;
     endDate: string;
+    /** Ordered steps; each contributes exactly one windowFunnel condition. */
+    steps: IResolvedFunnelStep<IChartEvent>[];
+    /** Pruned event configurations, used for the event-name prefilter. */
     eventSeries: IChartEvent[];
     funnelWindowMilliseconds: number;
     timezone: string;
@@ -93,7 +135,7 @@ export class FunnelService {
     group?: 'session_id' | 'profile_id';
     profilePropertyKeys?: string[];
   }) {
-    const funnels = this.getFunnelConditions(eventSeries, projectId).map((c) =>
+    const funnels = this.getStepConditions(steps, projectId).map((c) =>
       rewriteProfilePropertyRefs(c, profilePropertyKeys),
     );
     const primaryKey = group === 'profile_id' ? 'profile_id' : 'session_id';
@@ -127,7 +169,7 @@ export class FunnelService {
       .where(
         'events.name',
         'IN',
-        eventSeries.map((e) => e.name),
+        uniq(eventSeries.map((e) => e.name)),
       )
       // Only rows matching at least one step can advance windowFunnel, so
       // rows that share a step's event name but fail its filters are dead
@@ -272,6 +314,7 @@ export class FunnelService {
     breakdowns: initialBreakdowns = [],
     funnelWindow = 24,
     funnelGroup,
+    funnelSteps,
     timezone,
   }: {
     projectId: string;
@@ -282,6 +325,11 @@ export class FunnelService {
     breakdowns?: IChartBreakdown[];
     funnelWindow?: number;
     funnelGroup?: string;
+    /**
+     * Absent means one-event-per-step (every report saved before multi-event
+     * steps existed). Present-but-empty is invalid, not a fallback.
+     */
+    funnelSteps?: IFunnelStep[];
     timezone: string;
   }) {
     // Drop breakdowns that don't resolve to a known events column, properties
@@ -298,9 +346,20 @@ export class FunnelService {
       (b) => isKnownEventField(b.name) && !isAllCohortsBreakdown(b.name),
     );
 
-    const eventSeries = onlyReportEvents(
+    // Global filters are merged ONCE, before steps are resolved, so every
+    // alternate carries them and each step's OR arms are complete predicates.
+    const mergedSeries = onlyReportEvents(
       mergeGlobalFilters(series, globalFilters),
     );
+
+    // One shared normalization for the chart and the profile list: same step
+    // order, same alternates, same pruned event set. `eventSeries` is the
+    // pruned list from here on — orphan event configurations are not scanned
+    // and their profile.*/group.* filters never pull in a join.
+    const { steps, eventSeries } = resolveFunnelSteps({
+      series: mergedSeries,
+      funnelSteps,
+    });
 
     if (eventSeries.length === 0) {
       throw new Error('events are required');
@@ -351,8 +410,10 @@ export class FunnelService {
       ...breakdowns,
     ]);
 
+    // Entry attribution must accept ANY first-step alternate, so this is the
+    // step's merged OR — not the first event's condition.
     const firstStepCondition = rewriteProfilePropertyRefs(
-      this.getFunnelConditions(eventSeries, projectId)[0]!,
+      this.getStepConditions(steps, projectId)[0]!,
       profileProps.keys,
     );
     const breakdownSelects = breakdowns.map((b, index) => {
@@ -375,6 +436,7 @@ export class FunnelService {
       projectId,
       startDate,
       endDate,
+      steps,
       eventSeries,
       funnelWindowMilliseconds,
       timezone,
@@ -453,7 +515,7 @@ export class FunnelService {
 
     query.with('session_funnel', funnelCte);
 
-    return { query, eventSeries, breakdowns, group };
+    return { query, steps, eventSeries, breakdowns, group };
   }
 
   async getFunnel({
@@ -475,7 +537,7 @@ export class FunnelService {
 
     const {
       query: funnelQuery,
-      eventSeries,
+      steps: resolvedSteps,
       breakdowns,
     } = await this.buildFunnelBase({
       projectId,
@@ -486,6 +548,7 @@ export class FunnelService {
       breakdowns: initialBreakdowns,
       funnelWindow: funnelOptions?.funnelWindow,
       funnelGroup: funnelOptions?.funnelGroup,
+      funnelSteps: funnelOptions?.funnelSteps,
       timezone,
     });
 
@@ -515,7 +578,11 @@ export class FunnelService {
 
     return funnelSeries
       .map((data) => {
-        const maxLevel = eventSeries.length;
+        // Levels, zero-fill, conversion and drop-off are all counted in STEPS.
+        // With multi-event steps the event count is larger than the step count.
+        // (`resolvedSteps` — the inner `steps` below shadows a same-named
+        // binding, which would be a TDZ error.)
+        const maxLevel = resolvedSteps.length;
         const filledFunnelRes = this.fillFunnel(
           data.map((d) => ({ level: d.level, count: d.count })),
           maxLevel,
@@ -527,14 +594,43 @@ export class FunnelService {
             (acc, item, index, list) => {
               const prev = list[index - 1] ?? { count: totalSessions };
               const next = list[index + 1];
-              const event = eventSeries[item.level - 1]!;
+              const step = resolvedSteps[item.level - 1]!;
+              const primary = step.events[0]!;
+              const isMultiEvent = step.events.length > 1;
               return [
                 ...acc,
                 {
-                  event: {
-                    ...event,
-                    displayName: event.displayName || event.name,
-                  },
+                  stepId: step.id,
+                  stepIndex: step.stepIndex,
+                  displayName: step.displayName,
+                  events: step.events,
+                  /**
+                   * Compat field for the four exits that serialize this result
+                   * verbatim (MCP run_report, MCP/Agent generate_report, the
+                   * Agent dashboard tool, and the public Insights endpoint
+                   * /:projectId/reports/:reportId/data).
+                   *
+                   * Single-alternate step: the event configuration spread
+                   * as-is — every field, `filters` still carrying the merged
+                   * global filters — with only `displayName` resolved to the
+                   * step label. For a report without funnelSteps that label IS
+                   * `displayName || name`, so old reports are byte-identical.
+                   *
+                   * Multi-alternate step: `id` and `displayName` describe the
+                   * STEP; `name` is the first alternate and is diagnostic only;
+                   * `filters` is emptied because no single alternate's filters
+                   * describe the step, and leaving the first one would be read
+                   * as the whole step's condition. The real condition lives in
+                   * `events`.
+                   */
+                  event: isMultiEvent
+                    ? {
+                        ...primary,
+                        id: step.id,
+                        displayName: step.displayName,
+                        filters: [],
+                      }
+                    : { ...primary, displayName: step.displayName },
                   count: item.count,
                   percent: (item.count / totalSessions) * 100,
                   dropoffCount: next ? item.count - next.count : null,
@@ -547,6 +643,10 @@ export class FunnelService {
               ];
             },
             [] as {
+              stepId: string;
+              stepIndex: number;
+              displayName: string;
+              events: IChartEvent[];
               event: IChartEvent & { displayName: string };
               count: number;
               percent: number;
@@ -651,7 +751,10 @@ export async function getFunnelCore(input: {
 
   const steps = primarySeries.steps.map((step, index) => ({
     step: index + 1,
-    eventName: step.event.displayName || step.event.name,
+    // Step label, not event label: with multi-event steps `event.name` is only
+    // the first alternate. The Insights `eventName` field is unchanged for
+    // single-event funnels, which is all this endpoint can produce.
+    eventName: step.displayName,
     users: step.count,
     conversionRateFromStart: Math.round(step.percent * 100) / 100,
     dropoffPercent:

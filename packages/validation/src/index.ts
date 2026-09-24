@@ -11,6 +11,8 @@ import {
   timeWindows,
 } from '@openpanel/constants';
 
+import { zFunnelStep } from './funnel-steps';
+
 /**
  * Chart formulas are plain arithmetic over series references (A, B, C, ...).
  * The API validates the parsed expression tree as well; this charset guard
@@ -175,6 +177,16 @@ export const zFunnelOptions = z.object({
   type: z.literal('funnel'),
   funnelGroup: z.string().optional(),
   funnelWindow: z.number().optional(),
+  // Optional: absent means "one event per step" (every report saved before
+  // multi-event steps existed). Present-but-empty is invalid and must not fall
+  // back to the legacy reading — see resolveFunnelSteps.
+  funnelSteps: z
+    .array(zFunnelStep)
+    .optional()
+    .describe(
+      'Ordered funnel steps. Each step lists the ids of the event ' +
+        'configurations in `series` that complete it (OR within a step).',
+    ),
 });
 
 export const zRetentionOptions = z.object({
@@ -735,3 +747,4 @@ export * from './track.validation';
 export * from './event-blocklist';
 export * from './chat';
 export * from './cohort.validation';
+export * from './funnel-steps';
