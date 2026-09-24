@@ -12,12 +12,13 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { FUNNEL_MAX_EVENTS } from '@openpanel/validation';
+import { FUNNEL_MAX_EVENTS, type IChartEventItem } from '@openpanel/validation';
 import { HandIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import { useState } from 'react';
 import {
   addFunnelStep,
   addFunnelStepEvent,
+  changeEvent,
   changeFunnelStepDisplayName,
   dismissFunnelStepsNotice,
   duplicateFunnelStep,
@@ -29,6 +30,16 @@ import {
 } from '../reportSlice';
 import { ReportEventMore } from './ReportEventMore';
 import { ReportSeriesItem } from './ReportSeriesItem';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { ComboboxEvents } from '@/components/ui/combobox-events';
 import { Input } from '@/components/ui/input';
@@ -117,6 +128,7 @@ export function ReportFunnelSteps() {
           <div className="flex flex-col gap-4">
             {views.map((view, index) => (
               <FunnelStepCard
+                eventNames={eventNames}
                 index={index}
                 key={view.id}
                 totalSteps={views.length}
@@ -149,10 +161,12 @@ export function ReportFunnelSteps() {
 
 function FunnelStepCard({
   view,
+  eventNames,
   index,
   totalSteps,
 }: {
   view: ReturnType<typeof selectFunnelStepViews>[number];
+  eventNames: RouterOutputs['chart']['events'];
   index: number;
   totalSteps: number;
 }) {
@@ -175,24 +189,28 @@ function FunnelStepCard({
           {...listeners}
         >
           <HandIcon className="size-3 text-muted-foreground" />
-          <span className="block font-semibold text-muted-foreground text-xs">
+          <span className="block font-semibold text-highlight text-xs">
             {index + 1}/{totalSteps}
           </span>
         </button>
-        <Input
-          defaultValue={view.displayName ?? ''}
-          onChange={(e) => {
-            // Same controlled/uncontrolled mix the flat series list uses;
-            // displayName is optional so an empty box means the default label.
-            dispatch(
-              changeFunnelStepDisplayName({
-                stepId: view.id,
-                displayName: e.target.value,
-              })
-            );
-          }}
-          placeholder={view.defaultDisplayName}
-        />
+        <label className="min-w-0 flex-1">
+          <span className="mb-1 block text-muted-foreground text-xs">
+            Step name
+          </span>
+          <Input
+            className="w-full"
+            defaultValue={view.displayName ?? ''}
+            onChange={(e) =>
+              dispatch(
+                changeFunnelStepDisplayName({
+                  stepId: view.id,
+                  displayName: e.target.value,
+                })
+              )
+            }
+            placeholder={view.defaultDisplayName}
+          />
+        </label>
         <ReportEventMore
           onClick={(action) => {
             if (action === 'duplicate') {
@@ -205,44 +223,29 @@ function FunnelStepCard({
       </div>
 
       <div className="px-2 pb-2">
-        <span className="text-muted-foreground">
+        <span className="text-muted-foreground text-sm">
           {view.events.length === 1
-            ? 'Completed by this event:'
-            : 'Completed by ANY of these events:'}
+            ? 'Event for this step'
+            : 'Any one of these events completes this step'}
         </span>
 
-        {view.events.map((event) => (
-          <div className="mt-2" key={event.id}>
-            <div className="flex items-center">
-              <div className="flex-1">
-                <ReportSeriesItem
-                  event={event}
-                  hideBadge
-                  index={0}
-                  isSelectManyEvents={false}
-                  showAddFilter
-                  showSegment={false}
-                />
-              </div>
-              <Button
-                className="h-8 w-8 p-0"
-                onClick={() =>
-                  dispatch(
-                    removeFunnelStepEvent({
-                      stepId: view.id,
-                      eventId: event.id!,
-                    })
-                  )
-                }
-                size="sm"
-                title="Remove this alternate event"
-                variant="ghost"
-              >
-                <TrashIcon size={14} />
-              </Button>
-            </div>
-          </div>
-        ))}
+        <div className="mt-2 divide-y divide-border border-border border-t">
+          {view.events.map((event) => (
+            <FunnelEventRow
+              event={event}
+              eventNames={eventNames}
+              key={event.id}
+              onRemove={() =>
+                dispatch(
+                  removeFunnelStepEvent({
+                    stepId: view.id,
+                    eventId: event.id!,
+                  })
+                )
+              }
+            />
+          ))}
+        </div>
 
         {view.events.length === 0 && (
           <p className="mt-1 text-red-500 text-sm" role="alert">
@@ -269,6 +272,116 @@ function FunnelStepCard({
           </Button>
         )}
       </div>
+    </div>
+  );
+}
+
+function FunnelEventRow({
+  event,
+  eventNames,
+  onRemove,
+}: {
+  event: IChartEventItem & { type: 'event' };
+  eventNames: RouterOutputs['chart']['events'];
+  onRemove: () => void;
+}) {
+  const dispatch = useDispatch();
+  const [pendingName, setPendingName] = useState<string | null>(null);
+
+  const selectEvent = (name: string) => {
+    if (name === event.name) {
+      return;
+    }
+    if (event.filters.length > 0) {
+      setPendingName(name);
+      return;
+    }
+    dispatch(changeEvent({ ...event, name }));
+  };
+
+  return (
+    <div className="py-2">
+      <ReportSeriesItem
+        event={event}
+        hideBadge
+        index={0}
+        isSelectManyEvents={false}
+        showAddFilter
+        showSegment={false}
+      >
+        <div className="grid min-w-0 flex-1 grid-cols-1 gap-2 sm:grid-cols-2">
+          <div aria-label="Event" className="min-w-0" role="group">
+            <span className="mb-1 block text-muted-foreground text-xs">
+              Event
+            </span>
+            <ComboboxEvents
+              className="w-full min-w-0"
+              items={eventNames}
+              onChange={selectEvent}
+              placeholder="Select event"
+              searchable
+              value={event.name}
+            />
+          </div>
+          <label className="min-w-0">
+            <span className="mb-1 block text-muted-foreground text-xs">
+              Event note
+            </span>
+            <Input
+              className="w-full"
+              onChange={(e) =>
+                dispatch(changeEvent({ ...event, displayName: e.target.value }))
+              }
+              placeholder="Optional note"
+              value={event.displayName ?? ''}
+            />
+          </label>
+        </div>
+        <Button
+          aria-label={`Remove event ${event.name}`}
+          className="h-8 w-8 shrink-0 self-end p-0"
+          onClick={onRemove}
+          size="sm"
+          title="Remove this alternate event"
+          variant="ghost"
+        >
+          <TrashIcon size={14} />
+        </Button>
+      </ReportSeriesItem>
+
+      <AlertDialog
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingName(null);
+          }
+        }}
+        open={pendingName !== null}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Change this event?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Filters configured for {event.name} will be removed. The event
+              note will be kept.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep current event</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingName !== null) {
+                  dispatch(
+                    changeEvent({ ...event, name: pendingName, filters: [] })
+                  );
+                }
+                setPendingName(null);
+              }}
+            >
+              Change event
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -102,10 +102,15 @@ function materializeFunnelSteps(state: InitialState): IFunnelStep[] {
   if (options.funnelSteps) {
     return options.funnelSteps;
   }
+  const legacyEvents = state.series.filter((item) => item.type === 'event');
+  // Match the ids already used by selectFunnelStepViews. The first edit of a
+  // legacy step must not remount its card and drop focus from the name field.
+  const stepIds = legacyEvents.map((item, index) => item.id ?? `step-${index}`);
   assignMissingIds(state);
-  options.funnelSteps = state.series
-    .filter((item) => item.type === 'event')
-    .map((item) => ({ id: shortId(), eventIds: [item.id!] }));
+  options.funnelSteps = legacyEvents.map((item, index) => ({
+    id: stepIds[index]!,
+    eventIds: [item.id!],
+  }));
   return options.funnelSteps;
 }
 

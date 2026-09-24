@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest';
 import {
   addFunnelStep,
   addFunnelStepEvent,
+  changeEvent,
+  changeFunnelStepDisplayName,
   duplicateFunnelStep,
   removeFunnelStep,
   removeFunnelStepEvent,
@@ -54,6 +56,46 @@ describe('legacy funnel without funnelSteps', () => {
     expect(views.map((v) => v.defaultDisplayName)).toEqual(['e_a', 'e_b']);
   });
 
+  it('keeps the legacy card id and event note when the step is first renamed', () => {
+    const oldReport = {
+      ...legacyFunnel,
+      series: [{ ...event('a', 'e_a'), displayName: 'Original note' }],
+    };
+    const state = reducer(undefined, setReport(oldReport as never));
+    const before = selectFunnelStepViews({ report: state } as never)[0]!;
+    const renamed = reducer(
+      state,
+      changeFunnelStepDisplayName({
+        stepId: before.id,
+        displayName: 'Step label',
+      })
+    );
+    const after = selectFunnelStepViews({ report: renamed } as never)[0]!;
+
+    expect(after.id).toBe(before.id);
+    expect(after.displayName).toBe('Step label');
+    expect(after.events[0]?.displayName).toBe('Original note');
+    expect(steps(renamed)?.[0]?.eventIds).toEqual(['a']);
+  });
+
+  it('lets a loaded legacy event be selected and noted again', () => {
+    const state = loaded();
+    const original = state.series[0]!;
+    if (original.type !== 'event') {
+      throw new Error('Expected a legacy event');
+    }
+    const edited = reducer(
+      state,
+      changeEvent({ ...original, name: 'e_a_new', displayName: 'New note' })
+    );
+    const view = selectFunnelStepViews({ report: edited } as never)[0]!;
+
+    expect(view.events[0]?.name).toBe('e_a_new');
+    expect(view.events[0]?.displayName).toBe('New note');
+    expect(view.defaultDisplayName).toBe('New note');
+    expect(steps(edited)).toBeUndefined();
+  });
+
   it('materializes funnelSteps on the first step-level edit', () => {
     const next = reducer(loaded(), addFunnelStep({ name: 'e_c' }));
     expect(steps(next)).toHaveLength(3);
@@ -84,7 +126,10 @@ describe('step and alternate editing', () => {
     const stepId = steps(state)![1]!.id;
     const added = reducer(state, addFunnelStepEvent({ stepId, name: 'e_b2' }));
     const removedId = steps(added)!.find((s) => s.id === stepId)!.eventIds[1]!;
-    const next = reducer(added, removeFunnelStepEvent({ stepId, eventId: removedId }));
+    const next = reducer(
+      added,
+      removeFunnelStepEvent({ stepId, eventId: removedId })
+    );
     expect(steps(next)!.find((s) => s.id === stepId)!.eventIds).toEqual(['b']);
     expect(next.series.some((s) => s.id === removedId)).toBe(false);
   });
@@ -92,11 +137,14 @@ describe('step and alternate editing', () => {
   it('leaves an emptied step in place as an editable placeholder, but invalid', () => {
     const state = withSteps();
     const stepId = steps(state)![1]!.id;
-    const next = reducer(state, removeFunnelStepEvent({ stepId, eventId: 'b' }));
+    const next = reducer(
+      state,
+      removeFunnelStepEvent({ stepId, eventId: 'b' })
+    );
     expect(steps(next)!.find((s) => s.id === stepId)!.eventIds).toEqual([]);
     expect(next.series.some((s) => s.id === 'b')).toBe(false);
     expect(selectFunnelConfigError({ report: next } as never)).toMatch(
-      /has no events/,
+      /has no events/
     );
   });
 
@@ -123,7 +171,10 @@ describe('step and alternate editing', () => {
   it('reorders steps without touching the alternates', () => {
     const state = withSteps();
     const before = steps(state)!.map((s) => s.id);
-    const next = reducer(state, reorderFunnelSteps({ fromIndex: 0, toIndex: 2 }));
+    const next = reducer(
+      state,
+      reorderFunnelSteps({ fromIndex: 0, toIndex: 2 })
+    );
     expect(steps(next)!.map((s) => s.id)).toEqual([
       before[1],
       before[2],
@@ -142,16 +193,16 @@ describe('orphan events on chart-type round trip', () => {
     state = reducer(state, changeChartType('linear'));
     state = reducer(
       state,
-      addSerie({ type: 'event', name: 'stray', segment: 'event', filters: [] }),
+      addSerie({ type: 'event', name: 'stray', segment: 'event', filters: [] })
     );
     return reducer(state, changeChartType('funnel'));
   };
 
   it('drops the orphan from series and reports it once', () => {
     const next = roundTrip();
-    expect(next.series.some((s) => s.type === 'event' && s.name === 'stray')).toBe(
-      false,
-    );
+    expect(
+      next.series.some((s) => s.type === 'event' && s.name === 'stray')
+    ).toBe(false);
     expect(next.funnelStepsNotice).toEqual(['stray']);
     expect(selectFunnelConfigError({ report: next } as never)).toBeNull();
   });
@@ -159,12 +210,15 @@ describe('orphan events on chart-type round trip', () => {
   it('drops references to events deleted while on another chart type', () => {
     let state = reducer(loaded(), addFunnelStep({ name: 'e_c' }));
     state = reducer(state, changeChartType('linear'));
-    state = reducer(state, { type: 'report/removeEvent', payload: { id: 'b' } });
+    state = reducer(state, {
+      type: 'report/removeEvent',
+      payload: { id: 'b' },
+    });
     state = reducer(state, changeChartType('funnel'));
     const emptied = steps(state)!.filter((s) => s.eventIds.length === 0);
     expect(emptied).toHaveLength(1);
     expect(selectFunnelConfigError({ report: state } as never)).toMatch(
-      /has no events/,
+      /has no events/
     );
   });
 
@@ -181,5 +235,24 @@ describe('orphan events on chart-type round trip', () => {
     expect(state.series.every((s) => Boolean(s.id))).toBe(true);
     expect(new Set(state.series.map((s) => s.id)).size).toBe(3);
     expect(selectFunnelConfigError({ report: state } as never)).toBeNull();
+  });
+
+  it('renames a legacy step whose event has no saved id', () => {
+    const legacyNoIds = {
+      ...legacyFunnel,
+      series: [{ type: 'event', name: 'e_a', segment: 'event', filters: [] }],
+    };
+    const state = reducer(undefined, setReport(legacyNoIds as never));
+    const stepId = selectFunnelStepViews({ report: state } as never)[0]!.id;
+    const renamed = reducer(
+      state,
+      changeFunnelStepDisplayName({ stepId, displayName: 'Step label' })
+    );
+
+    expect(selectFunnelStepViews({ report: renamed } as never)[0]?.id).toBe(
+      stepId
+    );
+    expect(steps(renamed)?.[0]?.displayName).toBe('Step label');
+    expect(renamed.series[0]?.id).toBeTruthy();
   });
 });
