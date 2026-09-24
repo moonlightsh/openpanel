@@ -42,7 +42,7 @@ export async function up() {
       if (report.funnelGroup || report.funnelWindow !== null) {
         newOptions = {
           type: 'funnel',
-          funnelGroup: report.funnelGroup ?? undefined,
+          funnelGroup: report.funnelGroup as 'session_id' | 'profile_id' | 'event' | undefined,
           funnelWindow: report.funnelWindow ?? undefined,
         };
       }

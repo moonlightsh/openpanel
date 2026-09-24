@@ -156,3 +156,65 @@ describe('report.update — funnel step validation', () => {
     expect(dbMock.report.update).not.toHaveBeenCalled();
   });
 });
+
+describe('assertReportIsStorable — conversion chart funnelGroup validation', () => {
+  it('rejects conversion chart with event funnelGroup on create', async () => {
+    await expect(
+      caller().create({
+        dashboardId: 'dash-1',
+        report: funnelReport({
+          chartType: 'conversion',
+          options: {
+            type: 'funnel',
+            funnelGroup: 'event',
+          },
+        }),
+      } as never),
+    ).rejects.toThrow('Conversion charts do not support Event grouping');
+    expect(dbMock.report.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects conversion chart with event funnelGroup on update', async () => {
+    await expect(
+      caller().update({
+        reportId: 'report-1',
+        report: funnelReport({
+          chartType: 'conversion',
+          options: {
+            type: 'funnel',
+            funnelGroup: 'event',
+          },
+        }),
+      } as never),
+    ).rejects.toThrow('Conversion charts do not support Event grouping');
+    expect(dbMock.report.update).not.toHaveBeenCalled();
+  });
+
+  it('allows conversion chart with session_id funnelGroup', async () => {
+    await caller().create({
+      dashboardId: 'dash-1',
+      report: funnelReport({
+        chartType: 'conversion',
+        options: {
+          type: 'funnel',
+          funnelGroup: 'session_id',
+        },
+      }),
+    } as never);
+    expect(dbMock.report.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows funnel chart with event funnelGroup', async () => {
+    await caller().create({
+      dashboardId: 'dash-1',
+      report: funnelReport({
+        chartType: 'funnel',
+        options: {
+          type: 'funnel',
+          funnelGroup: 'event',
+        },
+      }),
+    } as never);
+    expect(dbMock.report.create).toHaveBeenCalledTimes(1);
+  });
+});

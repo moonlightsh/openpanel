@@ -32,10 +32,10 @@ import {
   validateShareAccess,
 } from '@openpanel/db';
 import {
-  type IChartEvent,
   zChartEventFilter,
   zChartSeries,
   zCriteria,
+  zFunnelGroup,
   zFunnelStep,
   zRange,
   zReportInput,
@@ -609,7 +609,7 @@ export const chartRouter = createTRPCRouter({
     // Extract sankey options
     const options = input.options;
 
-    if (!options || options.type !== 'sankey') {
+    if (options?.type !== 'sankey') {
       throw new Error('Sankey options are required');
     }
 
@@ -888,7 +888,7 @@ export const chartRouter = createTRPCRouter({
             'If true, show users who dropped off at this step. If false, show users who completed at least this step.'
           ),
         funnelWindow: z.number().optional(),
-        funnelGroup: z.string().optional(),
+        funnelGroup: zFunnelGroup.optional(),
         funnelSteps: z
           .array(zFunnelStep)
           .optional()
@@ -923,7 +923,7 @@ export const chartRouter = createTRPCRouter({
       // here. The two copies used to drift — breakdown expressions referencing
       // a `profile` or `cohort_<id>` alias whose join this side never added,
       // which failed with UNKNOWN_IDENTIFIER and surfaced as "No users found".
-      const { query, breakdowns } = await funnelService.buildFunnelBase({
+      const { query, breakdowns, group } = await funnelService.buildFunnelBase({
         projectId,
         startDate,
         endDate,
@@ -943,12 +943,30 @@ export const chartRouter = createTRPCRouter({
       // level=0 and select distinct profiles.
       query.with('funnel', 'SELECT * FROM session_funnel WHERE level != 0');
 
-      query.select(['DISTINCT profile_id']).from('funnel');
+      if (group === 'event') {
+        query
+          .select(['profile_id', 'count() as occurrence_count'])
+          .from('funnel')
+          .rawWhere("profile_id != ''");
 
-      if (showDropoffs) {
-        query.where('level', '=', targetLevel);
+        if (showDropoffs) {
+          query.where('level', '=', targetLevel);
+        } else {
+          query.where('level', '>=', targetLevel);
+        }
+
+        query
+          .groupBy(['profile_id'])
+          .orderBy('occurrence_count', 'DESC')
+          .orderBy('profile_id', 'ASC');
       } else {
-        query.where('level', '>=', targetLevel);
+        query.select(['DISTINCT profile_id']).from('funnel');
+
+        if (showDropoffs) {
+          query.where('level', '=', targetLevel);
+        } else {
+          query.where('level', '>=', targetLevel);
+        }
       }
 
       // Filter by specific breakdown values when a breakdown row was clicked.
@@ -980,10 +998,18 @@ export const chartRouter = createTRPCRouter({
 
       const profileIdsResult = (await query.execute()) as {
         profile_id: string;
+        occurrence_count?: string | number;
       }[];
 
       if (profileIdsResult.length === 0) {
         return [];
+      }
+
+      const occurrenceMap = new Map<string, number>();
+      for (const row of profileIdsResult) {
+        if (row.profile_id) {
+          occurrenceMap.set(row.profile_id, Number(row.occurrence_count ?? 1));
+        }
       }
 
       // Fetch profile details in batches to avoid exceeding ClickHouse max_query_size
@@ -994,7 +1020,20 @@ export const chartRouter = createTRPCRouter({
       for (let i = 0; i < ids.length; i += BATCH_SIZE) {
         const batch = ids.slice(i, i + BATCH_SIZE);
         const batchProfiles = await getProfilesCached(batch, projectId);
-        profiles.push(...batchProfiles);
+        for (const p of batchProfiles) {
+          profiles.push({
+            ...p,
+            occurrenceCount:
+              group === 'event' ? occurrenceMap.get(p.id) : undefined,
+          });
+        }
+      }
+
+      if (group === 'event') {
+        const orderMap = new Map(ids.map((id, index) => [id, index]));
+        profiles.sort(
+          (a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0),
+        );
       }
 
       return profiles;

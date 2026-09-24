@@ -9,6 +9,7 @@ import {
   isMinuteIntervalEnabledByRange,
 } from '@openpanel/constants';
 import {
+  type IFunnelGroup,
   type IFunnelStep,
   defaultStepDisplayName,
   getFunnelConfigError,
@@ -459,7 +460,7 @@ export const reportSlice = createSlice({
       state.metric = action.payload;
     },
 
-    changeFunnelGroup(state, action: PayloadAction<string | undefined>) {
+    changeFunnelGroup(state, action: PayloadAction<IFunnelGroup | undefined>) {
       state.dirty = true;
       if (!state.options || state.options.type !== 'funnel') {
         state.options = {

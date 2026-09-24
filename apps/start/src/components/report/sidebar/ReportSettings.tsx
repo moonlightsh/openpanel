@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useAppParams } from '@/hooks/use-app-params';
 import { useEventNames } from '@/hooks/use-event-names';
-import type { IChartMetric } from '@openpanel/validation';
+import type { IChartMetric, IFunnelGroup } from '@openpanel/validation';
 import { useMemo } from 'react';
 import {
   changeCriteria,
@@ -167,30 +167,58 @@ export function ReportSettings() {
           </div>
         )}
         {fields.includes('funnelGroup') && (
-          <div className="flex items-center justify-between gap-4">
-            <Label className="whitespace-nowrap font-medium mb-0">
-              Funnel Group
-            </Label>
-            <Combobox
-              align="end"
-              placeholder="Default: Session"
-              value={funnelGroup || 'session_id'}
-              onChange={(val) => {
-                dispatch(
-                  changeFunnelGroup(val === 'session_id' ? undefined : val),
-                );
-              }}
-              items={[
-                {
-                  label: 'Session',
-                  value: 'session_id',
-                },
-                {
-                  label: 'Profile',
-                  value: 'profile_id',
-                },
-              ]}
-            />
+          <div className="col gap-1.5">
+            <div className="flex items-center justify-between gap-4">
+              <Label className="whitespace-nowrap font-medium mb-0">
+                Funnel Group
+              </Label>
+              <Combobox
+                align="end"
+                placeholder="Default: Session"
+                value={funnelGroup || 'session_id'}
+                onChange={(val) => {
+                  dispatch(
+                    changeFunnelGroup(
+                      val === 'session_id'
+                        ? undefined
+                        : (val as IFunnelGroup),
+                    ),
+                  );
+                }}
+                items={
+                  chartType === 'funnel'
+                    ? [
+                        {
+                          label: 'Session',
+                          value: 'session_id',
+                        },
+                        {
+                          label: 'Profile',
+                          value: 'profile_id',
+                        },
+                        {
+                          label: 'Event',
+                          value: 'event',
+                        },
+                      ]
+                    : [
+                        {
+                          label: 'Session',
+                          value: 'session_id',
+                        },
+                        {
+                          label: 'Profile',
+                          value: 'profile_id',
+                        },
+                      ]
+                }
+              />
+            </div>
+            {chartType === 'funnel' && funnelGroup === 'event' && (
+              <p className="text-xs text-muted-foreground">
+                Each first-step event counts as a funnel entry.
+              </p>
+            )}
           </div>
         )}
         {fields.includes('funnelWindow') && (

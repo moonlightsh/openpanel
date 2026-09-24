@@ -650,3 +650,219 @@ describe('funnel.service / getFunnel — steps[].event compatibility', () => {
     expect(step.events).toEqual([step.event]);
   });
 });
+
+async function buildEventChartSql(overrides: {
+  breakdowns?: IChartBreakdown[];
+  series?: ISeriesItem[];
+  funnelSteps?: { id: string; eventIds: string[] }[];
+  funnelWindow?: number;
+} = {}) {
+  const { query, breakdowns: resolved } = await funnelService.buildFunnelBase({
+    projectId: PROJECT_ID,
+    startDate: START,
+    endDate: END,
+    series: overrides.series ?? SERIES,
+    breakdowns: overrides.breakdowns ?? [],
+    funnelWindow: overrides.funnelWindow ?? 24,
+    funnelGroup: 'event',
+    funnelSteps: overrides.funnelSteps,
+    timezone: 'UTC',
+  });
+  query.with('funnel', 'SELECT * FROM session_funnel WHERE level != 0');
+  query
+    .select([
+      'level',
+      ...resolved.map((_, index) => `b_${index}`),
+      'count() as count',
+    ])
+    .from('funnel')
+    .groupBy(['level', ...resolved.map((_, index) => `b_${index}`)]);
+  return query.toSQL();
+}
+
+async function buildEventProfilesSql(breakdowns: IChartBreakdown[] = []) {
+  const { query } = await funnelService.buildFunnelBase({
+    projectId: PROJECT_ID,
+    startDate: START,
+    endDate: END,
+    series: SERIES,
+    breakdowns,
+    funnelWindow: 24,
+    funnelGroup: 'event',
+    timezone: 'UTC',
+  });
+  query.with('funnel', 'SELECT * FROM session_funnel WHERE level != 0');
+  query.select(['DISTINCT profile_id']).from('funnel');
+  query.where('level', '>=', 2);
+  return query.toSQL();
+}
+
+describe('funnel.service / buildFunnelBase — event grouping (group === "event")', () => {
+  afterAll(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('builds state machine SQL with arrayFold and expected columns', async () => {
+    const sql = await buildEventChartSql();
+    expect(sql).toContain('arrayFold(');
+    expect(sql).toContain('entry.1 AS entry_event_id');
+    expect(sql).toContain('user_key AS profile_id');
+    expect(sql).toContain('entry.5 AS level');
+    expect(sql).toContain("if(events.profile_id != '', events.profile_id");
+    expect(sql).toContain('ORDER BY user_key ASC, ts ASC, id ASC');
+    expect(sql).toContain('ARRAY JOIN entries AS entry');
+  });
+
+  it('orders events in strict mode by default', async () => {
+    vi.stubEnv('FUNNEL_NON_STRICT_ORDERING', '');
+    const sql = await buildEventChartSql();
+    expect(sql).toContain('ev.3 > e.3');
+    expect(sql).not.toContain('ev.3 = e.3 AND ev.2 != e.4');
+  });
+
+  it('orders events in non-strict mode when FUNNEL_NON_STRICT_ORDERING is set', async () => {
+    vi.stubEnv('FUNNEL_NON_STRICT_ORDERING', '1');
+    const sql = await buildEventChartSql();
+    expect(sql).toContain('(ev.3 > e.3 OR (ev.3 = e.3 AND ev.2 != e.4))');
+    vi.unstubAllEnvs();
+  });
+
+  it('includes event property breakdown in arrayFold tuple and outer select', async () => {
+    const sql = await buildEventChartSql({
+      breakdowns: [breakdown('properties.source')],
+    });
+    expect(sql).toContain("ifNull(toString(properties['source']), '') as b_0");
+    expect(sql).toContain('groupArray((user_key, id, ts, flags, b_0))');
+    expect(sql).toContain('entry.6 AS b_0');
+  });
+
+  it('includes multiple breakdowns in arrayFold tuple and outer select', async () => {
+    const sql = await buildEventChartSql({
+      breakdowns: [breakdown('properties.source'), breakdown('properties.plan')],
+    });
+    expect(sql).toContain('groupArray((user_key, id, ts, flags, b_0, b_1))');
+    expect(sql).toContain('entry.6 AS b_0');
+    expect(sql).toContain('entry.7 AS b_1');
+  });
+
+  it('handles group.* breakdown with _group_id in GROUP BY and ORDER BY', async () => {
+    const sql = await buildEventChartSql({
+      breakdowns: [breakdown('group.plan')],
+    });
+    expect(sql).toContain('ARRAY JOIN groups AS _group_id');
+    expect(sql).toContain('GROUP BY user_key, _group_id');
+    expect(sql).toContain('ORDER BY user_key ASC, _group_id ASC, ts ASC, id ASC');
+    expect(sql).toContain('entry.6 AS b_0');
+  });
+
+  it('handles profile breakdown with profiles join in event mode', async () => {
+    const sql = await buildEventChartSql({
+      breakdowns: [breakdown('profile.properties.plan')],
+    });
+    expect(sql).toMatch(/as profile/);
+    expect(sql).toContain('profile.id = events.profile_id');
+    expect(sql).toContain('entry.6 AS b_0');
+  });
+
+  it('handles cohort breakdown with inline cohort join in event mode', async () => {
+    mockCohortFindMany.mockResolvedValueOnce([
+      { id: COHORT_ID, name: 'VIP Users' },
+    ]);
+    const sql = await buildEventChartSql({
+      breakdowns: [breakdown(`cohort:${COHORT_ID}`)],
+    });
+    const alias = `cohort_${COHORT_ID.replace(/-/g, '_')}`;
+    expect(sql).toContain(alias);
+    expect(sql).toContain('entry.6 AS b_0');
+  });
+
+  itCH('event grouping chart SQL parses and resolves (EXPLAIN)', async () => {
+    await explain(await buildEventChartSql());
+    await explain(
+      await buildEventChartSql({
+        breakdowns: [breakdown('properties.source')],
+      }),
+    );
+    await explain(
+      await buildEventChartSql({
+        breakdowns: [breakdown('profile.properties.plan')],
+      }),
+    );
+  });
+
+  itCH('event grouping profiles SQL parses and resolves (EXPLAIN)', async () => {
+    await explain(await buildEventProfilesSql());
+    await explain(
+      await buildEventProfilesSql([breakdown('properties.source')]),
+    );
+  });
+});
+
+describe('funnel.service / getFunnel — totalEntries and funnelGroup', () => {
+  itCH('returns totalEntries and funnelGroup for event mode', async () => {
+    const [series] = await funnelService.getFunnel({
+      projectId: PROJECT_ID,
+      startDate: START,
+      endDate: END,
+      series: SERIES,
+      globalFilters: [],
+      breakdowns: [],
+      chartType: 'funnel',
+      interval: 'day',
+      range: 'custom',
+      previous: false,
+      metric: 'sum',
+      options: { type: 'funnel', funnelWindow: 24, funnelGroup: 'event' },
+      timezone: 'UTC',
+    } as never);
+
+    expect(series).toBeDefined();
+    expect(series!.funnelGroup).toBe('event');
+    expect(series!.totalEntries).toBe(series!.totalSessions);
+  });
+
+  itCH('returns totalEntries and funnelGroup for session_id mode', async () => {
+    const [series] = await funnelService.getFunnel({
+      projectId: PROJECT_ID,
+      startDate: START,
+      endDate: END,
+      series: SERIES,
+      globalFilters: [],
+      breakdowns: [],
+      chartType: 'funnel',
+      interval: 'day',
+      range: 'custom',
+      previous: false,
+      metric: 'sum',
+      options: { type: 'funnel', funnelWindow: 24, funnelGroup: 'session_id' },
+      timezone: 'UTC',
+    } as never);
+
+    expect(series).toBeDefined();
+    expect(series!.funnelGroup).toBe('session_id');
+    expect(series!.totalEntries).toBe(series!.totalSessions);
+  });
+
+  itCH('returns totalEntries and funnelGroup for profile_id mode', async () => {
+    const [series] = await funnelService.getFunnel({
+      projectId: PROJECT_ID,
+      startDate: START,
+      endDate: END,
+      series: SERIES,
+      globalFilters: [],
+      breakdowns: [],
+      chartType: 'funnel',
+      interval: 'day',
+      range: 'custom',
+      previous: false,
+      metric: 'sum',
+      options: { type: 'funnel', funnelWindow: 24, funnelGroup: 'profile_id' },
+      timezone: 'UTC',
+    } as never);
+
+    expect(series).toBeDefined();
+    expect(series!.funnelGroup).toBe('profile_id');
+    expect(series!.totalEntries).toBe(series!.totalSessions);
+  });
+});
+

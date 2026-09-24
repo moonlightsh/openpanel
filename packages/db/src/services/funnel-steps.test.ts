@@ -64,7 +64,7 @@ const FUNNEL_STEPS: IFunnelStep[] = [
 ];
 
 async function runFunnel(overrides: {
-  funnelGroup?: 'profile_id' | 'session_id';
+  funnelGroup?: 'profile_id' | 'session_id' | 'event';
   series?: IChartEventItem[];
   funnelSteps?: IFunnelStep[];
   globalFilters?: IChartEvent['filters'];
@@ -218,6 +218,38 @@ describe('multi-event funnel steps — overlapping predicates', () => {
     const u10Level = await queryLevel('fs-u10');
     expect(u10Level).toBeLessThanOrEqual(2);
     expect(res.steps.length).toBe(3);
+  });
+});
+
+describe('funnel event grouping — counting semantics (event)', () => {
+  itCH('produces three levels with totalEntries and funnelGroup', async () => {
+    const res = await runFunnel({ funnelGroup: 'event' });
+    expect(res.funnelGroup).toBe('event');
+    expect(res.totalEntries).toBe(9);
+    expect(res.totalSessions).toBe(9);
+    expect(res.steps.map((s) => s.displayName)).toEqual([
+      'visit',
+      'confirm_d1c / confirm_other',
+      'finished_d1c / finished_other',
+    ]);
+    expect(res.steps.map((s) => s.stepIndex)).toEqual([0, 1, 2]);
+    // Each user in FUNNEL_STEPS_FIXTURE has at most one entry, so counts match profile mode:
+    expect(res.steps.map((s) => s.count)).toEqual([9, 7, 4]);
+  });
+
+  itCH('global filters apply to every alternate in event mode', async () => {
+    const res = await runFunnel({
+      funnelGroup: 'event',
+      globalFilters: [
+        { id: 'g', name: 'country', operator: 'is', value: ['US'] },
+      ],
+    });
+    expect(res.steps.map((s) => s.count)).toEqual([8, 6, 3]);
+  });
+
+  itCH('attribute filters gate one arm in event mode', async () => {
+    const res = await runFunnel({ funnelGroup: 'event' });
+    expect(res.steps[2]!.count).toBe(4);
   });
 });
 

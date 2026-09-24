@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { zFunnelGroup, zFunnelOptions } from './index';
 import {
   FUNNEL_MAX_EVENTS,
   FunnelConfigError,
@@ -198,5 +199,32 @@ describe('assertFunnelConfig / getFunnelConfigError', () => {
 describe('defaultStepDisplayName', () => {
   it('prefers the display name for a single event', () => {
     expect(defaultStepDisplayName([{ name: 'x', displayName: 'X' }])).toBe('X');
+  });
+});
+
+describe('zFunnelGroup & zFunnelOptions', () => {
+  it('accepts valid funnelGroup values', () => {
+    expect(zFunnelGroup.parse('session_id')).toBe('session_id');
+    expect(zFunnelGroup.parse('profile_id')).toBe('profile_id');
+    expect(zFunnelGroup.parse('event')).toBe('event');
+  });
+
+  it('rejects invalid funnelGroup values', () => {
+    expect(() => zFunnelGroup.parse('invalid')).toThrow();
+    expect(() => zFunnelGroup.parse('user')).toThrow();
+  });
+
+  it('validates funnelGroup in zFunnelOptions', () => {
+    expect(
+      zFunnelOptions.parse({ type: 'funnel', funnelGroup: 'event' }),
+    ).toEqual({ type: 'funnel', funnelGroup: 'event' });
+
+    expect(zFunnelOptions.parse({ type: 'funnel' })).toEqual({
+      type: 'funnel',
+    });
+
+    expect(() =>
+      zFunnelOptions.parse({ type: 'funnel', funnelGroup: 'unknown' }),
+    ).toThrow();
   });
 });

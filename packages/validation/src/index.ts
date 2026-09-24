@@ -172,10 +172,13 @@ export const zRange = z.enum(objectToZodEnums(timeWindows));
 
 export const zCriteria = z.enum(['on_or_after', 'on']);
 
+export const zFunnelGroup = z.enum(['session_id', 'profile_id', 'event']);
+export type IFunnelGroup = z.infer<typeof zFunnelGroup>;
+
 // Report Options - Discriminated union based on chart type
 export const zFunnelOptions = z.object({
   type: z.literal('funnel'),
-  funnelGroup: z.string().optional(),
+  funnelGroup: zFunnelGroup.optional(),
   funnelWindow: z.number().optional(),
   // Optional: absent means "one event per step" (every report saved before
   // multi-event steps existed). Present-but-empty is invalid and must not fall

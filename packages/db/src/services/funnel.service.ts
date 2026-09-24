@@ -45,10 +45,10 @@ export class FunnelService {
 
   /**
    * Returns the grouping strategy for the funnel.
-   * Determines whether windowFunnel is computed per session_id or profile_id.
+   * Determines whether windowFunnel is computed per session_id, profile_id, or event.
    */
-  getFunnelGroup(group?: string): 'profile_id' | 'session_id' {
-    return group === 'profile_id' ? 'profile_id' : 'session_id';
+  getFunnelGroup(group?: string): 'profile_id' | 'session_id' | 'event' {
+    return group === 'profile_id' ? 'profile_id' : group === 'event' ? 'event' : 'session_id';
   }
 
   /**
@@ -107,6 +107,8 @@ export class FunnelService {
    *   profile_id is resolved via argMax to handle identity changes mid-session.
    * - When group === 'profile_id': windowFunnel is computed directly per profile_id.
    *   This correctly handles cross-session funnel completions.
+   * - When group === 'event': scans events sorted by user_key, (group), ts, id
+   *   to feed the deterministic event-matching state machine.
    */
   buildFunnelCte({
     projectId,
@@ -120,6 +122,7 @@ export class FunnelService {
     additionalGroupBy = [],
     group = 'session_id',
     profilePropertyKeys = [],
+    hasGroup = false,
   }: {
     projectId: string;
     startDate: string;
@@ -132,12 +135,47 @@ export class FunnelService {
     timezone: string;
     additionalSelects?: string[];
     additionalGroupBy?: string[];
-    group?: 'session_id' | 'profile_id';
+    group?: 'session_id' | 'profile_id' | 'event';
     profilePropertyKeys?: string[];
+    hasGroup?: boolean;
   }) {
     const funnels = this.getStepConditions(steps, projectId).map((c) =>
       rewriteProfilePropertyRefs(c, profilePropertyKeys),
     );
+
+    if (group === 'event') {
+      const query = clix(this.client, timezone)
+        .select([
+          'toString(events.id) AS id',
+          'toUInt64(toUnixTimestamp64Milli(events.created_at)) AS ts',
+          "if(events.profile_id != '', events.profile_id, if(events.device_id != '', concat('__d_', events.device_id), concat('__e_', toString(events.id)))) AS user_key",
+          `[${funnels.map((f) => `toUInt8(if(${f}, 1, 0))`).join(', ')}] AS flags`,
+          ...(hasGroup ? ['_group_id'] : []),
+          ...additionalSelects,
+        ])
+        .from(TABLE_NAMES.events, false)
+        .where('project_id', '=', projectId)
+        .where('created_at', 'BETWEEN', [
+          clix.datetime(startDate, 'toDateTime'),
+          clix.datetime(endDate, 'toDateTime'),
+        ])
+        .where(
+          'events.name',
+          'IN',
+          uniq(eventSeries.map((e) => e.name)),
+        )
+        .rawWhere(`(${funnels.map((f) => `(${f})`).join(' OR ')})`)
+        .orderBy('user_key', 'ASC');
+
+      if (hasGroup) {
+        query.orderBy('_group_id', 'ASC');
+      }
+      query.orderBy('ts', 'ASC');
+      query.orderBy('id', 'ASC');
+
+      return query;
+    }
+
     const primaryKey = group === 'profile_id' ? 'profile_id' : 'session_id';
 
     // windowFunnel's 'strict_increase' mode requires every step's timestamp
@@ -179,6 +217,125 @@ export class FunnelService {
       // ignores non-matching rows either way, so levels are unchanged.
       .rawWhere(`(${funnels.map((f) => `(${f})`).join(' OR ')})`)
       .groupBy([primaryKey, ...additionalGroupBy]);
+  }
+
+  buildEventStateMachineCte({
+    innerEventsSql,
+    totalSteps,
+    funnelWindowMilliseconds,
+    breakdownCount,
+    hasGroup = false,
+  }: {
+    innerEventsSql: string;
+    totalSteps: number;
+    funnelWindowMilliseconds: number;
+    breakdownCount: number;
+    hasGroup?: boolean;
+  }): string {
+    const nonStrictOrdering =
+      process.env.FUNNEL_NON_STRICT_ORDERING === '1' ||
+      process.env.FUNNEL_NON_STRICT_ORDERING === 'true';
+    const orderCond = nonStrictOrdering
+      ? '(ev.3 > e.3 OR (ev.3 = e.3 AND ev.2 != e.4))'
+      : 'ev.3 > e.3';
+
+    const bFields = Array.from(
+      { length: breakdownCount },
+      (_, i) => `b_${i}`,
+    );
+
+    const groupArrayTuple = [
+      'user_key',
+      'id',
+      'ts',
+      'flags',
+      ...bFields,
+    ].join(', ');
+
+    const accTupleType = `Array(Tuple(String, UInt64, UInt64, String, UInt8${breakdownCount > 0 ? ', ' + Array(breakdownCount).fill('String').join(', ') : ''}))`;
+
+    const advanceTuple = [
+      'e.1',
+      'e.2',
+      'ev.3',
+      'ev.2',
+      'toUInt8(e.5 + 1)',
+      ...Array.from({ length: breakdownCount }, (_, i) => `e.${6 + i}`),
+    ].join(', ');
+
+    const newEntryTuple = [
+      'ev.2',
+      'ev.3',
+      'ev.3',
+      'ev.2',
+      'toUInt8(1)',
+      ...Array.from({ length: breakdownCount }, (_, i) => `ev.${5 + i}`),
+    ].join(', ');
+
+    const stateMachineSql = `
+arrayFold(
+  (acc, ev) -> (
+    (
+      indexOf(
+        arrayMap(
+          e -> (
+            e.5 < ${totalSteps}
+            AND ev.4[e.5 + 1] = 1
+            AND ev.3 >= e.2
+            AND (ev.3 - e.2) <= ${funnelWindowMilliseconds}
+            AND ${orderCond}
+          ),
+          acc
+        ),
+        1
+      ) AS cand_idx
+    ),
+    (
+      if(
+        cand_idx > 0,
+        arrayMap(
+          (e, i) -> if(i == cand_idx, (${advanceTuple}), e),
+          acc,
+          arrayEnumerate(acc)
+        ),
+        acc
+      ) AS acc_adv
+    ),
+    if(
+      ev.4[1] = 1 AND NOT has(arrayMap(e -> e.1, acc_adv), ev.2),
+      arrayConcat(acc_adv, [(${newEntryTuple})]),
+      acc_adv
+    )
+  ).3,
+  groupArray((${groupArrayTuple})),
+  CAST([], '${accTupleType}')
+)`.trim();
+
+    const groupByClause = hasGroup ? 'user_key, _group_id' : 'user_key';
+    const groupSelectClause = hasGroup ? '_group_id, ' : '';
+
+    const outerSelects = [
+      'entry.1 AS entry_event_id',
+      'user_key AS profile_id',
+      'entry.5 AS level',
+      ...Array.from(
+        { length: breakdownCount },
+        (_, i) => `entry.${6 + i} AS b_${i}`,
+      ),
+    ].join(', ');
+
+    return `
+SELECT
+  ${outerSelects}
+FROM (
+  SELECT
+    user_key,
+    ${groupSelectClause}${stateMachineSql} AS entries
+  FROM (${innerEventsSql})
+  GROUP BY ${groupByClause}
+)
+ARRAY JOIN entries AS entry
+`.trim();
   }
 
   buildSessionsCte({
@@ -423,14 +580,20 @@ export class FunnelService {
         getSelectPropertyKey(b.name, projectId, bId ?? undefined, bName),
         profileProps.keys,
       );
+      if (group === 'event') {
+        return `ifNull(toString(${expr}), '') as b_${index}`;
+      }
       if (b.name.startsWith('group.')) {
         return `${expr} as b_${index}`;
       }
       return `argMinIf(${expr}, created_at, ${firstStepCondition}) as b_${index}`;
     });
-    const breakdownGroupBy = breakdowns.flatMap((b, index) =>
-      b.name.startsWith('group.') ? [`b_${index}`] : [],
-    );
+    const breakdownGroupBy =
+      group === 'event'
+        ? []
+        : breakdowns.flatMap((b, index) =>
+            b.name.startsWith('group.') ? [`b_${index}`] : [],
+          );
 
     const funnelCte = this.buildFunnelCte({
       projectId,
@@ -444,6 +607,7 @@ export class FunnelService {
       additionalGroupBy: breakdownGroupBy,
       group,
       profilePropertyKeys: profileProps.keys,
+      hasGroup: needsGroupArrayJoin,
     });
 
     // The profile join has to cover breakdowns as well as filters — a
@@ -513,7 +677,18 @@ export class FunnelService {
       );
     }
 
-    query.with('session_funnel', funnelCte);
+    if (group === 'event') {
+      const sessionFunnelSql = this.buildEventStateMachineCte({
+        innerEventsSql: funnelCte.toSQL(),
+        totalSteps: steps.length,
+        funnelWindowMilliseconds,
+        breakdownCount: breakdowns.length,
+        hasGroup: needsGroupArrayJoin,
+      });
+      query.with('session_funnel', sessionFunnelSql);
+    } else {
+      query.with('session_funnel', funnelCte);
+    }
 
     return { query, steps, eventSeries, breakdowns, group };
   }
@@ -539,6 +714,7 @@ export class FunnelService {
       query: funnelQuery,
       steps: resolvedSteps,
       breakdowns,
+      group,
     } = await this.buildFunnelBase({
       projectId,
       startDate,
@@ -686,6 +862,8 @@ export class FunnelService {
           breakdowns: data[0]?.breakdowns ?? [],
           steps,
           totalSessions,
+          totalEntries: totalSessions,
+          funnelGroup: group,
           lastStep: last(steps)!,
           mostDropoffsStep: steps.find((step) => step.isHighestDropoff)!,
         };

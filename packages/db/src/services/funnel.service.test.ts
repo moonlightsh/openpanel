@@ -82,3 +82,20 @@ describe('FunnelService.toSeries', () => {
     expect(series[0]).toHaveLength(2);
   });
 });
+
+describe('FunnelService.getFunnelGroup', () => {
+  it('returns profile_id when group is profile_id', () => {
+    expect(service.getFunnelGroup('profile_id')).toBe('profile_id');
+  });
+
+  it('returns event when group is event', () => {
+    expect(service.getFunnelGroup('event')).toBe('event');
+  });
+
+  it('returns session_id when group is session_id, undefined, or unknown', () => {
+    expect(service.getFunnelGroup('session_id')).toBe('session_id');
+    expect(service.getFunnelGroup(undefined)).toBe('session_id');
+    expect(service.getFunnelGroup('unknown')).toBe('session_id');
+  });
+});
+

@@ -31,6 +31,19 @@ function assertReportIsStorable(report: {
   series: readonly { type: string; id?: string; name?: string }[];
   options?: unknown;
 }) {
+  const options = report.options as
+    | { type?: string; funnelGroup?: string }
+    | undefined;
+  if (
+    report.chartType === 'conversion' &&
+    options?.type === 'funnel' &&
+    options?.funnelGroup === 'event'
+  ) {
+    throw new TRPCBadRequestError(
+      'Conversion charts do not support Event grouping',
+    );
+  }
+
   try {
     assertFunnelConfig(report as Parameters<typeof assertFunnelConfig>[0]);
   } catch (error) {

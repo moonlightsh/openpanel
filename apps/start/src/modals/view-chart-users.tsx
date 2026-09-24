@@ -38,9 +38,14 @@ const ProfileItem = ({ profile }: { profile: any }) => {
     >
       <div className="row gap-2 items-center">
         <ProfileAvatar {...profile} />
-        <div className="flex-1">
-          <div className="font-medium">{getProfileName(profile)}</div>
+        <div className="flex-1 min-w-0">
+          <div className="font-medium truncate">{getProfileName(profile)}</div>
         </div>
+        {profile.occurrenceCount != null && profile.occurrenceCount > 1 && (
+          <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground font-mono shrink-0">
+            {profile.occurrenceCount}x
+          </span>
+        )}
       </div>
 
       <div className="row gap-4 text-sm overflow-hidden">
@@ -417,6 +422,11 @@ function FunnelUsersView({
       }
     >
       <div className="flex flex-col gap-4">
+        {profilesQuery.data && profilesQuery.data.length >= 1000 && (
+          <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded border">
+            Showing up to 1,000 users. Total entries in chart are unaffected.
+          </div>
+        )}
         <ProfileListState query={profilesQuery} />
       </div>
     </ScrollableModal>

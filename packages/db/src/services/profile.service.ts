@@ -276,6 +276,7 @@ export interface IServiceProfile {
     model?: string;
     referrer?: string;
   };
+  occurrenceCount?: number;
 }
 
 export interface IClickhouseProfile {
