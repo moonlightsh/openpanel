@@ -33,20 +33,23 @@ export function stripPlaceholders(s) {
 }
 export function isRejected(msgid) {
   const bare = stripPlaceholders(msgid);
-  if (bare.length <= 1) return true;
-  if (!/[A-Za-z]/.test(bare)) return true; // 无字母
-  if (URL_FORM.test(bare)) return true;
-  if (CODE_FORM.test(bare)) return true; // 代码形态
-  if (/^\d[\d.,\s]*$/.test(bare)) return true; // 纯数字
+  if (bare.length <= 1) { return true; }
+  if (!/[A-Za-z]/.test(bare)) { return true; // 无字母
+}
+  if (URL_FORM.test(bare)) { return true; }
+  if (CODE_FORM.test(bare)) { return true; // 代码形态
+}
+  if (/^\d[\d.,\s]*$/.test(bare)) { return true; // 纯数字
+}
   return false;
 }
 
 // ---- AST helpers ----
 export function tagName(node) {
   const n = node.openingElement ? node.openingElement.name : node.name;
-  if (!n) return '';
-  if (n.type === 'JSXIdentifier') return n.name;
-  if (n.type === 'JSXMemberExpression') return n.property?.name || '';
+  if (!n) { return ''; }
+  if (n.type === 'JSXIdentifier') { return n.name; }
+  if (n.type === 'JSXMemberExpression') { return n.property?.name || ''; }
   return '';
 }
 export function isStrLit(n) {
@@ -61,16 +64,16 @@ export function tplToMsg(n) {
   let i = 0;
   for (let k = 0; k < n.quasis.length; k++) {
     out += n.quasis[k].value.cooked ?? n.quasis[k].value.raw ?? '';
-    if (k < n.expressions.length) out += `{${i++}}`;
+    if (k < n.expressions.length) { out += `{${i++}}`; }
   }
   return out;
 }
 export function hasRejectAncestor(path) {
   let p = path.parentPath;
   while (p) {
-    if (p.isJSXElement && p.isJSXElement()) {
+    if (p.isJSXElement?.()) {
       const t = tagName(p.node);
-      if (REJECT_TAGS.test(t) || REJECT_COMPONENT.test(t)) return true;
+      if (REJECT_TAGS.test(t) || REJECT_COMPONENT.test(t)) { return true; }
     }
     p = p.parentPath;
   }
@@ -96,20 +99,21 @@ export function collectChildren(children) {
     if (c.type === 'JSXText') {
       const dec = decodeHTML(c.value);
       parts.push(dec);
-      if (/[A-Za-z]/.test(dec)) hasTextLetters = true;
+      if (/[A-Za-z]/.test(dec)) { hasTextLetters = true; }
     } else if (c.type === 'JSXExpressionContainer') {
       const e = c.expression;
-      if (!e || e.type === 'JSXEmptyExpression') continue;
+      if (!e || e.type === 'JSXEmptyExpression') { continue; }
       if (isStrLit(e)) {
-        if (e.value.trim() === '') parts.push(' '); // {' '} 当字面空白（§5.4.3）
+        if (e.value.trim() === '') { parts.push(' '); // {' '} 当字面空白（§5.4.3）
+}
         else {
           parts.push(e.value);
-          if (/[A-Za-z]/.test(e.value)) hasTextLetters = true;
+          if (/[A-Za-z]/.test(e.value)) { hasTextLetters = true; }
         }
       } else if (tplNoExpr(e)) {
         const v = e.quasis[0].value.cooked ?? '';
         parts.push(v);
-        if (/[A-Za-z]/.test(v)) hasTextLetters = true;
+        if (/[A-Za-z]/.test(v)) { hasTextLetters = true; }
       } else {
         parts.push(`{${idx++}}`);
         dynamics.push({ kind: 'expr', node: e });
@@ -130,6 +134,6 @@ export function collectChildren(children) {
 // extract 兼容包装：无字母返回 null，否则返回合并串（与历史行为逐字节一致）。
 export function mergeChildren(children) {
   const r = collectChildren(children);
-  if (!r.hasTextLetters) return null;
+  if (!r.hasTextLetters) { return null; }
   return r.raw;
 }

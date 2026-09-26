@@ -13,7 +13,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from '@babel/parser';
 import MagicString from 'magic-string';
-// @ts-ignore @babel/traverse 无官方类型；本插件对 AST 一律用 any
+// @ts-expect-error @babel/traverse 无官方类型；本插件对 AST 一律用 any
 import _traverse from '@babel/traverse';
 import {
   ATTR_WHITELIST,
@@ -30,6 +30,8 @@ import {
   tplNoExpr,
   tplToMsg,
 } from '../shared/rules.mjs';
+// 运行时纯函数：buildRuntime() 通过 .toString() 原样内联进虚模块，单测直接 import（单一源）。
+import { buildNodes, fmt } from '../shared/runtime-core.mjs';
 
 const traverse = (_traverse as any).default || _traverse;
 
@@ -59,14 +61,14 @@ function stripQuery(id: string): string {
 }
 function shouldTransform(id: string): boolean {
   const p = stripQuery(id).replace(/\\/g, '/');
-  if (p.includes('/node_modules/')) return false;
-  if (/\.(test|spec)\.(ts|tsx)$/.test(p)) return false;
-  if (/\.gen\.ts$/.test(p)) return false;
-  if (p.endsWith('/routeTree.gen.ts')) return false;
+  if (p.includes('/node_modules/')) { return false; }
+  if (/\.(test|spec)\.(ts|tsx)$/.test(p)) { return false; }
+  if (/\.gen\.ts$/.test(p)) { return false; }
+  if (p.endsWith('/routeTree.gen.ts')) { return false; }
   // apps/start/src 下的 .ts/.tsx
-  if (p.includes('/apps/start/src/') && /\.(ts|tsx)$/.test(p)) return true;
+  if (p.includes('/apps/start/src/') && /\.(ts|tsx)$/.test(p)) { return true; }
   // packages/** 里的 UI 文案 .ts（排除本包自身，避免自引用）
-  if (p.includes('/packages/') && !p.includes('/packages/i18n-zh/') && /\.ts$/.test(p)) return true;
+  if (p.includes('/packages/') && !p.includes('/packages/i18n-zh/') && /\.ts$/.test(p)) { return true; }
   return false;
 }
 
@@ -74,11 +76,17 @@ function shouldTransform(id: string): boolean {
 function src(code: string, node: any): string {
   return code.slice(node.start, node.end);
 }
+// JSX children 里的表达式子节点是否"可能渲染为 ReactNode"（决定 __opT vs __opTx）。
+// 逻辑/条件表达式常返回元素或布尔（{!!x && <El/>} / {cond ? <A/> : <B/>}），
+// 若走 __opT 的 String() 会渲染出 false/[object Object]，必须走 __opTx。
+function isNodeLikeExpr(node: any): boolean {
+  return node && (node.type === 'LogicalExpression' || node.type === 'ConditionalExpression');
+}
 function jsExpr(str: string): string {
   return JSON.stringify(str);
 }
 function buildT(msgid: string, argSrcs: string[]): string {
-  const args = argSrcs.length ? ', ' + argSrcs.join(', ') : '';
+  const args = argSrcs.length ? `, ${argSrcs.join(', ')}` : '';
   return `__opT(${jsExpr(msgid)}${args})`;
 }
 function buildTx(msgid: string, partSrcs: string[]): string {
@@ -93,8 +101,12 @@ function tplParts(code: string, node: any): { msgid: string; argSrcs: string[] }
 interface Edit {
   start: number;
   end: number;
-  replacement: string;
   needsRuntime: boolean; // 是否需要注入 __opT/__opTx（lang 改写不需要）
+  // 直接替换（lang / 属性 / toast / zod / 对象 / 模板值）——立即可得的替换串。
+  replacement?: string;
+  // JSX children 整句组合（§5.2）：延迟解析，子节点须递归改写后再拼装 __opT/__opTx，
+  // 避免用未改写的原始子源码导致子元素文案漏译（B2）。
+  composite?: { fn: 'T' | 'Tx'; msgid: string; dynamics: any[] };
 }
 
 // 核心：解析 -> 遍历规则 -> 收集编辑 -> 去重叠 -> magic-string 替换。
@@ -115,35 +127,43 @@ function rewriteFile(code: string, rejectSet: Set<string>): { code: string; map:
   traverse(ast, {
     JSXElement(path: any) {
       const t = tagName(path.node);
-      if (REJECT_TAGS.test(t) || REJECT_COMPONENT.test(t)) return;
-      if (hasRejectAncestor(path)) return;
-      // <html lang="en"> -> zh-CN（属性级，在 JSXAttribute 里统一处理）
+      if (REJECT_TAGS.test(t) || REJECT_COMPONENT.test(t)) { return; }
+      if (hasRejectAncestor(path)) { return; }
       const r = collectChildren(path.node.children);
-      if (!r.hasTextLetters) return;
+      if (!r.hasTextLetters) { return; }
       const msgid = normalize(r.raw);
-      if (!accept(msgid)) return;
+      if (!accept(msgid)) { return; }
       const oe = path.node.openingElement;
       const ce = path.node.closingElement;
-      if (!ce) return; // 自闭合无 children
-      const argSrcs = r.dynamics.map((d: any) => src(code, d.node));
-      const replacement = r.hasElement
-        ? `{${buildTx(msgid, argSrcs)}}`
-        : `{${buildT(msgid, argSrcs)}}`;
-      edits.push({ start: oe.end, end: ce.start, replacement, needsRuntime: true });
+      if (!ce) { return; // 自闭合无 children
+}
+      // B1：children 位置下，只要存在可能为 ReactNode 的动态子节点就走 __opTx（React
+      // 正确渲染 元素/字符串/数字/false/null），彻底消除 String() 产生的 "false"/"[object Object]"。
+      const nodeLike =
+        r.hasElement || r.dynamics.some((d: any) => d.kind === 'expr' && isNodeLikeExpr(d.node));
+      edits.push({
+        start: oe.end,
+        end: ce.start,
+        needsRuntime: true,
+        composite: { fn: nodeLike ? 'Tx' : 'T', msgid, dynamics: r.dynamics },
+      });
     },
     JSXFragment(path: any) {
-      if (hasRejectAncestor(path)) return;
+      if (hasRejectAncestor(path)) { return; }
       const r = collectChildren(path.node.children);
-      if (!r.hasTextLetters) return;
+      if (!r.hasTextLetters) { return; }
       const msgid = normalize(r.raw);
-      if (!accept(msgid)) return;
+      if (!accept(msgid)) { return; }
       const of_ = path.node.openingFragment;
       const cf = path.node.closingFragment;
-      const argSrcs = r.dynamics.map((d: any) => src(code, d.node));
-      const replacement = r.hasElement
-        ? `{${buildTx(msgid, argSrcs)}}`
-        : `{${buildT(msgid, argSrcs)}}`;
-      edits.push({ start: of_.end, end: cf.start, replacement, needsRuntime: true });
+      const nodeLike =
+        r.hasElement || r.dynamics.some((d: any) => d.kind === 'expr' && isNodeLikeExpr(d.node));
+      edits.push({
+        start: of_.end,
+        end: cf.start,
+        needsRuntime: true,
+        composite: { fn: nodeLike ? 'Tx' : 'T', msgid, dynamics: r.dynamics },
+      });
     },
     JSXAttribute(path: any) {
       const nm = path.node.name;
@@ -154,7 +174,7 @@ function rewriteFile(code: string, rejectSet: Set<string>): { code: string; map:
             ? `${nm.namespace.name}:${nm.name.name}`
             : '';
       const v = path.node.value;
-      if (!v) return;
+      if (!v) { return; }
       // <html lang="en"> -> "zh-CN"（§5.1；不动源文件）
       if (name === 'lang' && isStrLit(v) && v.value === 'en') {
         const parent = path.parent;
@@ -163,25 +183,25 @@ function rewriteFile(code: string, rejectSet: Set<string>): { code: string; map:
         }
         return;
       }
-      if (!ATTR_WHITELIST.has(name)) return;
+      if (!ATTR_WHITELIST.has(name)) { return; }
       if (isStrLit(v)) {
         const msgid = normalize(v.value);
-        if (!accept(msgid)) return;
+        if (!accept(msgid)) { return; }
         edits.push({ start: v.start, end: v.end, replacement: `{${buildT(msgid, [])}}`, needsRuntime: true });
       } else if (v.type === 'JSXExpressionContainer') {
         const e = v.expression;
         if (isStrLit(e)) {
           const msgid = normalize(e.value);
-          if (!accept(msgid)) return;
+          if (!accept(msgid)) { return; }
           edits.push({ start: v.start, end: v.end, replacement: `{${buildT(msgid, [])}}`, needsRuntime: true });
         } else if (tplNoExpr(e)) {
           const msgid = normalize(e.quasis[0].value.cooked ?? '');
-          if (!accept(msgid)) return;
+          if (!accept(msgid)) { return; }
           edits.push({ start: v.start, end: v.end, replacement: `{${buildT(msgid, [])}}`, needsRuntime: true });
         } else if (e && e.type === 'TemplateLiteral') {
           const { msgid: raw, argSrcs } = tplParts(code, e);
           const msgid = normalize(raw);
-          if (!accept(msgid)) return;
+          if (!accept(msgid)) { return; }
           edits.push({ start: v.start, end: v.end, replacement: `{${buildT(msgid, argSrcs)}}`, needsRuntime: true });
         }
       }
@@ -189,11 +209,12 @@ function rewriteFile(code: string, rejectSet: Set<string>): { code: string; map:
     CallExpression(path: any) {
       const callee = path.node.callee;
       let isToast = false;
-      if (callee.type === 'MemberExpression' && callee.object?.type === 'Identifier' && callee.object.name === 'toast')
+      if (callee.type === 'MemberExpression' && callee.object?.type === 'Identifier' && callee.object.name === 'toast') {
         isToast = true;
-      if (callee.type === 'Identifier' && callee.name === 'toast') isToast = true;
+      }
+      if (callee.type === 'Identifier' && callee.name === 'toast') { isToast = true; }
       if (isToast) {
-        for (const arg of path.node.arguments) rewriteExprString(code, arg, edits, accept);
+        for (const arg of path.node.arguments) { rewriteExprString(code, arg, edits, accept); }
       }
       if (
         callee.type === 'MemberExpression' &&
@@ -205,7 +226,7 @@ function rewriteFile(code: string, rejectSet: Set<string>): { code: string; map:
             for (const p of arg.properties) {
               if (p.type === 'ObjectProperty' && !p.computed) {
                 const k = p.key.type === 'Identifier' ? p.key.name : p.key.type === 'StringLiteral' ? p.key.value : '';
-                if (k === 'message') rewriteExprString(code, p.value, edits, accept);
+                if (k === 'message') { rewriteExprString(code, p.value, edits, accept); }
               }
             }
           } else {
@@ -216,38 +237,38 @@ function rewriteFile(code: string, rejectSet: Set<string>): { code: string; map:
     },
     ObjectProperty(path: any) {
       const node = path.node;
-      if (node.computed) return;
+      if (node.computed) { return; }
       const k = node.key.type === 'Identifier' ? node.key.name : node.key.type === 'StringLiteral' ? node.key.value : '';
-      if (!OBJ_KEY_WHITELIST.has(k)) return;
+      if (!OBJ_KEY_WHITELIST.has(k)) { return; }
       rewriteExprString(code, node.value, edits, accept);
     },
   });
 
-  if (edits.length === 0) return null;
+  if (edits.length === 0) { return null; }
   return applyEdits(code, edits, ast);
 }
 
 // 表达式上下文里的字符串/模板改写（toast / zod / 对象属性）
 function rewriteExprString(code: string, node: any, edits: Edit[], accept: (m: string) => boolean) {
-  if (!node) return;
+  if (!node) { return; }
   if (isStrLit(node)) {
     const msgid = normalize(node.value);
-    if (!accept(msgid)) return;
+    if (!accept(msgid)) { return; }
     edits.push({ start: node.start, end: node.end, replacement: buildT(msgid, []), needsRuntime: true });
   } else if (tplNoExpr(node)) {
     const msgid = normalize(node.quasis[0].value.cooked ?? '');
-    if (!accept(msgid)) return;
+    if (!accept(msgid)) { return; }
     edits.push({ start: node.start, end: node.end, replacement: buildT(msgid, []), needsRuntime: true });
   } else if (node.type === 'TemplateLiteral') {
     const { msgid: raw, argSrcs } = tplParts(code, node);
     const msgid = normalize(raw);
-    if (!accept(msgid)) return;
+    if (!accept(msgid)) { return; }
     edits.push({ start: node.start, end: node.end, replacement: buildT(msgid, argSrcs), needsRuntime: true });
   }
 }
 
-// 去重叠：按 start 升序、end 降序排列后，贪心保留最外层非重叠区间，
-// 丢弃被包含的嵌套编辑（元素级整句会吞并其子节点文本，§5.2）。
+// 去重叠：按 start 升序、end 降序排列后，贪心保留最外层非重叠区间。
+// 被包含的嵌套编辑不直接丢弃，而是由 renderRange 在组合 part 时递归应用（§5.2）。
 function dedupeEdits(edits: Edit[]): Edit[] {
   const sorted = edits.slice().sort((a, b) => a.start - b.start || b.end - a.end);
   const kept: Edit[] = [];
@@ -257,7 +278,7 @@ function dedupeEdits(edits: Edit[]): Edit[] {
       kept.push(e);
       coveredEnd = e.end;
     }
-    // 否则被前一个更外层的编辑包含 -> 丢弃
+    // 否则被前一个更外层的编辑包含 -> 交给 renderRange 递归处理
   }
   return kept;
 }
@@ -266,19 +287,20 @@ function importInsertOffset(ast: any): number {
   const body = ast.program.body;
   for (const n of body) {
     const isDirective = n.type === 'ExpressionStatement' && n.expression?.type === 'StringLiteral';
-    if (!isDirective) return n.start;
+    if (!isDirective) { return n.start; }
   }
-  return body.length ? body[body.length - 1].end : 0;
+  const last = body.at(-1);
+  return last ? last.end : 0;
 }
 
 function applyEdits(code: string, edits: Edit[], ast?: any): { code: string; map: any } | null {
   const kept = dedupeEdits(edits);
-  if (kept.length === 0) return null;
+  if (kept.length === 0) { return null; }
   const s = new MagicString(code);
   let needsRuntime = false;
   for (const e of kept) {
-    s.overwrite(e.start, e.end, e.replacement, { contentOnly: true });
-    if (e.needsRuntime) needsRuntime = true;
+    s.overwrite(e.start, e.end, resolveEdit(e, edits, code), { contentOnly: true });
+    if (e.needsRuntime) { needsRuntime = true; }
   }
   if (needsRuntime && ast) {
     const at = importInsertOffset(ast);
@@ -287,22 +309,75 @@ function applyEdits(code: string, edits: Edit[], ast?: any): { code: string; map
   return { code: s.toString(), map: s.generateMap({ hires: true }) };
 }
 
+// 将单条编辑解析为最终替换串。composite（JSX children 整句）延迟到此时才拼装，
+// 其 part 由 renderRange 递归改写后得到（子元素文案也被翻译，修复 B2）。
+function resolveEdit(edit: Edit, all: Edit[], code: string): string {
+  if (edit.composite) {
+    const partSrcs = edit.composite.dynamics.map((d: any) =>
+      renderRange(code, d.node.start, d.node.end, all),
+    );
+    return edit.composite.fn === 'Tx'
+      ? `{${buildTx(edit.composite.msgid, partSrcs)}}`
+      : `{${buildT(edit.composite.msgid, partSrcs)}}`;
+  }
+  return edit.replacement ?? '';
+}
+
+// 递归渲染 [start,end) 区间：先应用“完全包含在该区间内”的子编辑，得到已改写的子源码。
+// 使 __opTx/__opT 的组合 part 携带的是“翻译后的子元素”，而非原始英文源码（修复 B2）。
+function renderRange(code: string, start: number, end: number, all: Edit[]): string {
+  const inner = all.filter(
+    (e) => e.start >= start && e.end <= end && !(e.start === start && e.end === end),
+  );
+  const kept = dedupeEdits(inner);
+  if (kept.length === 0) { return code.slice(start, end); }
+  const s = new MagicString(code.slice(start, end));
+  for (const e of kept) {
+    s.overwrite(e.start - start, e.end - start, resolveEdit(e, all, code), { contentOnly: true });
+  }
+  return s.toString();
+}
+
 // ---- 虚模块运行时（§4.3）----
 // dict 编译期静态内联；locale 源 cookie op_locale，默认 zh-CN；
 // dev 未命中推入 window.__OP_I18N_MISSES；OP_I18N_PSEUDO=1 时已翻译输出包 〖〗。
-function buildRuntime(): string {
-  let dictJson = '{}';
+export function buildRuntime(): string {
+  let dict: Record<string, string> = {};
   try {
-    dictJson = readFileSync(DICT_PATH, 'utf8').trim() || '{}';
-  } catch {
-    dictJson = '{}';
+    const parsed = JSON.parse(readFileSync(DICT_PATH, 'utf8'));
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      let ok = true;
+      for (const val of Object.values(parsed)) {
+        if (typeof val !== 'string') {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) {
+        dict = parsed as Record<string, string>;
+      } else {
+        console.warn('[op-i18n] zh-CN.json 含非字符串值，已忽略字典（回退英文）');
+      }
+    } else {
+      console.warn('[op-i18n] zh-CN.json 不是对象，已忽略字典（回退英文）');
+    }
+  } catch (e) {
+    console.warn(
+      '[op-i18n] 读取/解析 zh-CN.json 失败，使用空字典（回退英文）：',
+      e instanceof Error ? e.message : e,
+    );
   }
+  const dictJson = JSON.stringify(dict);
   const pseudo = process.env.OP_I18N_PSEUDO === '1';
   return `// AUTO-GENERATED by vite-plugin-op-i18n（virtual:op-i18n）
 const dict = ${dictJson};
 const PSEUDO = ${pseudo};
 const DEFAULT_LOCALE = "zh-CN";
 const SUPPORTED = new Set(["zh-CN", "en"]);
+
+${fmt.toString()}
+
+${buildNodes.toString()}
 
 function parseCookieLocale(cookieStr) {
   if (!cookieStr) return null;
@@ -336,15 +411,8 @@ function recordMiss(msgid) {
 function lookup(msgid) {
   if (getLocale() === "en") return { text: msgid, hit: false }; // key 即英文，英文零字典
   const t = dict[msgid];
-  if (t == null) { recordMiss(msgid); return { text: msgid, hit: false }; }
+  if (t == null || t === "") { recordMiss(msgid); return { text: msgid, hit: false }; }
   return { text: t, hit: true };
-}
-
-function fmt(text, args) {
-  return text.replace(/\\{(\\d+)\\}/g, (_, n) => {
-    const a = args[Number(n)];
-    return a == null ? "" : String(a);
-  });
 }
 
 export function __opT(msgid, ...args) {
@@ -356,16 +424,7 @@ export const __t = __opT;
 
 export function __opTx(msgid, parts) {
   const r = lookup(msgid);
-  const nodes = [];
-  const re = /\\{(\\d+)\\}/g;
-  let last = 0;
-  let m;
-  while ((m = re.exec(r.text))) {
-    if (m.index > last) nodes.push(r.text.slice(last, m.index));
-    nodes.push(parts[Number(m[1])]);
-    last = m.index + m[0].length;
-  }
-  if (last < r.text.length) nodes.push(r.text.slice(last));
+  const nodes = buildNodes(r.text, parts);
   if (PSEUDO && r.hit) { nodes.unshift("〖"); nodes.push("〗"); }
   return nodes;
 }
@@ -383,17 +442,17 @@ export default function opI18nPlugin() {
     enforce: 'pre' as const,
 
     resolveId(id: string) {
-      if (id === VIRTUAL_ID) return RESOLVED_VIRTUAL_ID;
+      if (id === VIRTUAL_ID) { return RESOLVED_VIRTUAL_ID; }
       return null;
     },
     load(id: string) {
-      if (id === RESOLVED_VIRTUAL_ID) return buildRuntime();
+      if (id === RESOLVED_VIRTUAL_ID) { return buildRuntime(); }
       return null;
     },
     transform(code: string, id: string) {
-      if (!shouldTransform(id)) return null;
+      if (!shouldTransform(id)) { return null; }
       const key = createHash('sha1').update(id).update('\0').update(code).digest('hex');
-      if (cache.has(key)) return cache.get(key);
+      if (cache.has(key)) { return cache.get(key); }
       const result = rewriteFile(code, rejectSet);
       cache.set(key, result);
       return result;
