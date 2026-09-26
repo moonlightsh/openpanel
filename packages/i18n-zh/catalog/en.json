@@ -1,6 +1,6 @@
 {
   "Cancel": {
-    "count": 32,
+    "count": 33,
     "kinds": [
       "jsx"
     ],
@@ -70,6 +70,32 @@
       "apps/start/src/components/overview/overview-user-journey.tsx:301"
     ]
   },
+  "Create": {
+    "count": 12,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/dashboards/select-dashboard.tsx:132",
+      "apps/start/src/components/integrations/forms/discord-integration.tsx:97",
+      "apps/start/src/components/integrations/forms/gcs-export-integration.tsx:183",
+      "apps/start/src/components/integrations/forms/s3-export-integration.tsx:322",
+      "apps/start/src/components/integrations/forms/slack-integration.tsx:64"
+    ]
+  },
+  "Update": {
+    "count": 12,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/gcs-export-integration.tsx:183",
+      "apps/start/src/components/integrations/forms/s3-export-integration.tsx:322",
+      "apps/start/src/components/integrations/forms/webhook-integration.tsx:338",
+      "apps/start/src/components/report/ReportSaveButton.tsx:56",
+      "apps/start/src/modals/add-notification-rule.tsx:250"
+    ]
+  },
   "Save": {
     "count": 11,
     "kinds": [
@@ -81,6 +107,19 @@
       "apps/start/src/components/settings/edit-project-details.tsx:200",
       "apps/start/src/components/settings/edit-project-filters.tsx:306",
       "apps/start/src/modals/edit-client.tsx:62"
+    ]
+  },
+  "Not set": {
+    "count": 9,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-line-chart.tsx:193",
+      "apps/start/src/components/overview/overview-line-chart.tsx:292",
+      "apps/start/src/components/overview/overview-top-devices.tsx:415",
+      "apps/start/src/components/overview/overview-top-generic-modal.tsx:69",
+      "apps/start/src/components/overview/overview-top-geo.tsx:180"
     ]
   },
   "Revenue": {
@@ -124,19 +163,6 @@
       "apps/start/src/modals/add-client.tsx:79"
     ]
   },
-  "Create": {
-    "count": 7,
-    "kinds": [
-      "jsx"
-    ],
-    "refs": [
-      "apps/start/src/components/integrations/forms/discord-integration.tsx:97",
-      "apps/start/src/components/integrations/forms/slack-integration.tsx:64",
-      "apps/start/src/modals/add-client.tsx:151",
-      "apps/start/src/modals/add-cohort.tsx:122",
-      "apps/start/src/modals/add-dashboard.tsx:78"
-    ]
-  },
   "Email": {
     "count": 7,
     "kinds": [
@@ -149,6 +175,19 @@
       "apps/start/src/components/settings/invites/columns.tsx:28",
       "apps/start/src/components/settings/members/columns.tsx:37",
       "apps/start/src/modals/create-invite.tsx:116"
+    ]
+  },
+  "(Not set)": {
+    "count": 6,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/realtime/map/map-badge-detail-card.tsx:136",
+      "apps/start/src/components/realtime/map/map-badge-detail-card.tsx:184",
+      "apps/start/src/components/realtime/realtime-geo.tsx:64",
+      "apps/start/src/components/realtime/realtime-paths.tsx:62",
+      "apps/start/src/components/realtime/realtime-referrals.tsx:54"
     ]
   },
   "Members": {
@@ -164,6 +203,19 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.cohorts_.$cohortId._tabs.tsx:98",
       "apps/start/src/routes/_app.$organizationId.$projectId.groups_.$groupId._tabs.tsx:87",
       "apps/start/src/routes/_app.$organizationId.members._tabs.tsx:41"
+    ]
+  },
+  "No data available": {
+    "count": 6,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-line-chart.tsx:114",
+      "apps/start/src/components/overview/overview-line-chart.tsx:327",
+      "apps/start/src/components/overview/overview-list-modal.tsx:259",
+      "apps/start/src/components/overview/overview-map.tsx:66",
+      "apps/start/src/components/overview/overview-weekly-trends.tsx:155"
     ]
   },
   "Operator": {
@@ -232,6 +284,19 @@
       "apps/start/src/modals/table-filters.tsx:152"
     ]
   },
+  "Failed to create integration": {
+    "count": 5,
+    "kinds": [
+      "toast"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/discord-integration.tsx:44",
+      "apps/start/src/components/integrations/forms/gcs-export-integration.tsx:54",
+      "apps/start/src/components/integrations/forms/s3-export-integration.tsx:78",
+      "apps/start/src/components/integrations/forms/slack-integration.tsx:40",
+      "apps/start/src/components/integrations/forms/webhook-integration.tsx:135"
+    ]
+  },
   "Is": {
     "count": 5,
     "kinds": [
@@ -284,6 +349,33 @@
       "apps/start/src/components/ui/data-table/data-table-config.ts:45"
     ]
   },
+  "It might take a few seconds to update": {
+    "count": 5,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing-plan-picker.tsx:119",
+      "apps/start/src/components/organization/billing-prompt.tsx:115",
+      "apps/start/src/components/organization/billing-prompt.tsx:143",
+      "apps/start/src/components/organization/billing.tsx:62",
+      "apps/start/src/components/organization/cancel-subscription-flow.tsx:134"
+    ]
+  },
+  "No data": {
+    "count": 5,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/tool-results/chat-report-result.tsx:50",
+      "apps/start/src/components/realtime/map/map-badge-detail-card.tsx:146",
+      "apps/start/src/components/realtime/map/map-badge-detail-card.tsx:167",
+      "apps/start/src/components/realtime/map/map-badge-detail-card.tsx:190",
+      "apps/start/src/components/ui/data-table/data-table.tsx:41"
+    ]
+  },
   "Overview": {
     "count": 5,
     "kinds": [
@@ -296,19 +388,6 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.cohorts_.$cohortId._tabs.tsx:96",
       "apps/start/src/routes/_app.$organizationId.$projectId.groups_.$groupId._tabs.tsx:86",
       "apps/start/src/routes/_app.$organizationId.$projectId.profiles.$profileId._tabs.tsx:56"
-    ]
-  },
-  "Update": {
-    "count": 5,
-    "kinds": [
-      "jsx"
-    ],
-    "refs": [
-      "apps/start/src/components/report/ReportSaveButton.tsx:56",
-      "apps/start/src/modals/edit-dashboard.tsx:69",
-      "apps/start/src/modals/edit-group.tsx:137",
-      "apps/start/src/modals/edit-reference.tsx:89",
-      "apps/start/src/modals/edit-report.tsx:38"
     ]
   },
   "View Users": {
@@ -384,6 +463,20 @@
       "apps/start/src/modals/gsc-details.tsx:72",
       "apps/start/src/routes/_app.$organizationId.$projectId.seo.tsx:74",
       "apps/start/src/routes/_app.$organizationId.$projectId.seo.tsx:265"
+    ]
+  },
+  "Cohorts": {
+    "count": 4,
+    "kinds": [
+      "attr",
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/report/sidebar/PropertiesCombobox.tsx:269",
+      "apps/start/src/components/report/sidebar/ReportBreakdowns.tsx:62",
+      "apps/start/src/components/sidebar-project-menu.tsx:72",
+      "apps/start/src/routes/_app.$organizationId.$projectId.cohorts.tsx:107"
     ]
   },
   "Copied to clipboard": {
@@ -575,18 +668,6 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.insights.tsx:293"
     ]
   },
-  "It might take a few seconds to update": {
-    "count": 4,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/organization/billing-plan-picker.tsx:119",
-      "apps/start/src/components/organization/billing-prompt.tsx:115",
-      "apps/start/src/components/organization/billing-prompt.tsx:143",
-      "apps/start/src/components/organization/billing.tsx:62"
-    ]
-  },
   "Loading...": {
     "count": 4,
     "kinds": [
@@ -597,31 +678,6 @@
       "apps/start/src/components/overview/overview-user-journey.tsx:242",
       "apps/start/src/components/overview/overview-weekly-trends.tsx:151",
       "apps/start/src/routes/share.overview.$shareId.tsx:80"
-    ]
-  },
-  "No data": {
-    "count": 4,
-    "kinds": [
-      "jsx",
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/realtime/map/map-badge-detail-card.tsx:146",
-      "apps/start/src/components/realtime/map/map-badge-detail-card.tsx:167",
-      "apps/start/src/components/realtime/map/map-badge-detail-card.tsx:190",
-      "apps/start/src/components/ui/data-table/data-table.tsx:41"
-    ]
-  },
-  "No data available": {
-    "count": 4,
-    "kinds": [
-      "jsx"
-    ],
-    "refs": [
-      "apps/start/src/components/overview/overview-line-chart.tsx:327",
-      "apps/start/src/components/overview/overview-map.tsx:66",
-      "apps/start/src/components/overview/overview-weekly-trends.tsx:155",
-      "apps/start/src/components/ui/key-value-grid.tsx:162"
     ]
   },
   "Search": {
@@ -711,6 +767,28 @@
       "apps/start/src/routes/share.report.$shareId.tsx:61"
     ]
   },
+  "{0}-{1} of {2}": {
+    "count": 3,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/page/gsc-cannibalization.tsx:103",
+      "apps/start/src/components/page/pages-insights.tsx:261",
+      "apps/start/src/routes/_app.$organizationId.$projectId.seo.tsx:722"
+    ]
+  },
+  "0 results": {
+    "count": 3,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/page/gsc-cannibalization.tsx:103",
+      "apps/start/src/components/page/pages-insights.tsx:261",
+      "apps/start/src/routes/_app.$organizationId.$projectId.seo.tsx:722"
+    ]
+  },
   "Accept events from these domains": {
     "count": 3,
     "kinds": [
@@ -731,6 +809,17 @@
       "apps/start/src/components/report-chart/area/chart.tsx:177",
       "apps/start/src/components/report-chart/histogram/chart.tsx:137",
       "apps/start/src/components/report-chart/line/chart.tsx:190"
+    ]
+  },
+  "All": {
+    "count": 3,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:158",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:604",
+      "apps/start/src/components/profiles/latest-events.tsx:60"
     ]
   },
   "All projects": {
@@ -754,6 +843,18 @@
       "apps/start/src/components/page/gsc-position-chart.tsx:39",
       "apps/start/src/components/page/gsc-position-chart.tsx:67",
       "apps/start/src/routes/_app.$organizationId.$projectId.seo.tsx:303"
+    ]
+  },
+  "Between": {
+    "count": 3,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:372",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:377",
+      "apps/start/src/components/report/sidebar/ReportSettings.tsx:238"
     ]
   },
   "Bounce Rate": {
@@ -811,18 +912,6 @@
       "apps/start/src/components/clients/create-client-success.tsx:36",
       "apps/start/src/components/onboarding/verify-faq.tsx:120",
       "apps/start/src/routes/_steps.onboarding.$projectId.connect.tsx:105"
-    ]
-  },
-  "Cohorts": {
-    "count": 3,
-    "kinds": [
-      "attr",
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/report/sidebar/PropertiesCombobox.tsx:269",
-      "apps/start/src/components/sidebar-project-menu.tsx:72",
-      "apps/start/src/routes/_app.$organizationId.$projectId.cohorts.tsx:107"
     ]
   },
   "Completed": {
@@ -989,17 +1078,6 @@
       "apps/start/src/components/report/sidebar/ReportFunnelSteps.tsx:314"
     ]
   },
-  "Failed to create integration": {
-    "count": 3,
-    "kinds": [
-      "toast"
-    ],
-    "refs": [
-      "apps/start/src/components/integrations/forms/discord-integration.tsx:44",
-      "apps/start/src/components/integrations/forms/slack-integration.tsx:40",
-      "apps/start/src/components/integrations/forms/webhook-integration.tsx:135"
-    ]
-  },
   "Groups": {
     "count": 3,
     "kinds": [
@@ -1010,6 +1088,18 @@
       "apps/start/src/components/sidebar-project-menu.tsx:71",
       "apps/start/src/routes/_app.$organizationId.$projectId.groups.tsx:71",
       "apps/start/src/routes/_app.$organizationId.$projectId.sessions_.$sessionId.tsx:360"
+    ]
+  },
+  "In cohort": {
+    "count": 3,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/filters/overview-filters-buttons.tsx:92",
+      "apps/start/src/components/report/sidebar/filters/CohortFilterItem.tsx:156",
+      "apps/start/src/components/report/sidebar/filters/CohortFilterItem.tsx:162"
     ]
   },
   "Integrations": {
@@ -1034,15 +1124,38 @@
       "apps/start/src/modals/share-report-modal.tsx:90"
     ]
   },
-  "Not set": {
+  "Make it public": {
     "count": 3,
     "kinds": [
       "jsx"
     ],
     "refs": [
-      "apps/start/src/components/overview/overview-top-pages-modal.tsx:55",
-      "apps/start/src/components/overview/overview-widget-table.tsx:319",
-      "apps/start/src/components/overview/overview-widget-table.tsx:454"
+      "apps/start/src/modals/share-dashboard-modal.tsx:187",
+      "apps/start/src/modals/share-overview-modal.tsx:180",
+      "apps/start/src/modals/share-report-modal.tsx:181"
+    ]
+  },
+  "N/A": {
+    "count": 3,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-metric-card.tsx:176",
+      "apps/start/src/components/overview/overview-metric-card.tsx:183",
+      "apps/start/src/components/report-chart/metric/metric-card.tsx:66"
+    ]
+  },
+  "Not in cohort": {
+    "count": 3,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/filters/overview-filters-buttons.tsx:93",
+      "apps/start/src/components/report/sidebar/filters/CohortFilterItem.tsx:157",
+      "apps/start/src/components/report/sidebar/filters/CohortFilterItem.tsx:162"
     ]
   },
   "Notifications": {
@@ -1066,6 +1179,18 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.widgets.tsx:271",
       "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.widgets.tsx:360",
       "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.widgets.tsx:454"
+    ]
+  },
+  "OpenPanel.dev": {
+    "count": 3,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/login-navbar.tsx:22",
+      "apps/start/src/components/public-page-card.tsx:38",
+      "apps/start/src/routes/__root.tsx:62"
     ]
   },
   "Pages": {
@@ -1227,6 +1352,39 @@
       "apps/start/src/routes/share.report.$shareId.tsx:41"
     ]
   },
+  "Start Import": {
+    "count": 3,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/modals/add-import.tsx:112",
+      "apps/start/src/modals/add-import.tsx:252",
+      "apps/start/src/modals/add-import.tsx:382"
+    ]
+  },
+  "Starting...": {
+    "count": 3,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/modals/add-import.tsx:112",
+      "apps/start/src/modals/add-import.tsx:252",
+      "apps/start/src/modals/add-import.tsx:382"
+    ]
+  },
+  "Test connection": {
+    "count": 3,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/discord-integration.tsx:94",
+      "apps/start/src/components/integrations/forms/gcs-export-integration.tsx:180",
+      "apps/start/src/components/integrations/forms/s3-export-integration.tsx:319"
+    ]
+  },
   "Thinking…": {
     "count": 3,
     "kinds": [
@@ -1271,6 +1429,17 @@
       "apps/start/src/components/organization/billing-prompt.tsx:42",
       "packages/payments/src/subscription-state-meta.ts:79",
       "packages/payments/src/subscription-state-meta.ts:81"
+    ]
+  },
+  "Unknown": {
+    "count": 3,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/events/table/columns.tsx:116",
+      "apps/start/src/components/realtime/map/map-badge-detail-card.tsx:251",
+      "apps/start/src/components/settings/invites/columns.tsx:126"
     ]
   },
   "Used last time": {
@@ -1440,6 +1609,61 @@
       "apps/start/src/components/realtime/realtime-live-histogram.tsx:230"
     ]
   },
+  "180 days": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:397",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:406"
+    ]
+  },
+  "30 days": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:395",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:404"
+    ]
+  },
+  "365 days": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:398",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:407"
+    ]
+  },
+  "7 days": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:394",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:403"
+    ]
+  },
+  "90 days": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:396",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:405"
+    ]
+  },
   "Access": {
     "count": 2,
     "kinds": [
@@ -1513,6 +1737,16 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.profiles._tabs.tsx:27"
     ]
   },
+  "Any": {
+    "count": 2,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:158",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:604"
+    ]
+  },
   "App": {
     "count": 2,
     "kinds": [
@@ -1524,6 +1758,26 @@
       "apps/start/src/routes/_steps.onboarding.project.tsx:290"
     ]
   },
+  "Are you sure you want to delete \"{0}\"? This action cannot be undone.": {
+    "count": 2,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.cohorts_.$cohortId._tabs.tsx:166",
+      "apps/start/src/routes/_app.$organizationId.$projectId.groups_.$groupId._tabs.tsx:136"
+    ]
+  },
+  "Are you sure you want to delete this dashboard? All your reports will be deleted!": {
+    "count": 2,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.dashboards.tsx:210",
+      "apps/start/src/routes/_app.$organizationId.$projectId.dashboards_.$dashboardId.tsx:348"
+    ]
+  },
   "Ask AI": {
     "count": 2,
     "kinds": [
@@ -1533,6 +1787,28 @@
     "refs": [
       "apps/start/src/components/sidebar-project-menu.tsx:120",
       "apps/start/src/modals/overview-filters.tsx:80"
+    ]
+  },
+  "At least": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:290",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:297"
+    ]
+  },
+  "At most": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:292",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:299"
     ]
   },
   "Available charts": {
@@ -1564,16 +1840,6 @@
     "refs": [
       "apps/start/src/modals/add-project.tsx:245",
       "apps/start/src/routes/_steps.onboarding.project.tsx:296"
-    ]
-  },
-  "Between": {
-    "count": 2,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:372",
-      "apps/start/src/components/report/sidebar/ReportSettings.tsx:238"
     ]
   },
   "Billing": {
@@ -1910,6 +2176,17 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.events._tabs.stats.tsx:46"
     ]
   },
+  "Exactly": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:291",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:298"
+    ]
+  },
   "Failed to download cohort members": {
     "count": 2,
     "kinds": [
@@ -1918,6 +2195,16 @@
     "refs": [
       "apps/start/src/routes/_app.$organizationId.$projectId.cohorts.tsx:85",
       "apps/start/src/routes/_app.$organizationId.$projectId.cohorts_.$cohortId._tabs.tsx:89"
+    ]
+  },
+  "Failed to test connection": {
+    "count": 2,
+    "kinds": [
+      "toast"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/gcs-export-integration.tsx:69",
+      "apps/start/src/components/integrations/forms/s3-export-integration.tsx:93"
     ]
   },
   "First name": {
@@ -1930,6 +2217,16 @@
       "apps/start/src/routes/_app.$organizationId.account._tabs.index.tsx:79"
     ]
   },
+  "Flat": {
+    "count": 2,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/report-chart/common/report-table-toolbar.tsx:41",
+      "apps/start/src/routes/_app.$organizationId.$projectId.insights.tsx:350"
+    ]
+  },
   "Format": {
     "count": 2,
     "kinds": [
@@ -1940,6 +2237,17 @@
       "apps/start/src/components/integrations/forms/s3-export-integration.tsx:176"
     ]
   },
+  "Free trial": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing.tsx:319",
+      "packages/payments/src/subscription-state-meta.ts:64"
+    ]
+  },
   "Freeze snapshot (don't auto-refresh)": {
     "count": 2,
     "kinds": [
@@ -1948,6 +2256,17 @@
     "refs": [
       "apps/start/src/modals/add-cohort.tsx:99",
       "apps/start/src/modals/edit-cohort.tsx:101"
+    ]
+  },
+  "Funnel": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/report-chart/funnel/breakdown-list.tsx:126",
+      "apps/start/src/modals/add-notification-rule.tsx:137"
     ]
   },
   "Funnel steps": {
@@ -2011,16 +2330,6 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.groups.tsx:70"
     ]
   },
-  "In cohort": {
-    "count": 2,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/overview/filters/overview-filters-buttons.tsx:92",
-      "apps/start/src/components/report/sidebar/filters/CohortFilterItem.tsx:156"
-    ]
-  },
   "Invite a user": {
     "count": 2,
     "kinds": [
@@ -2060,6 +2369,28 @@
     "refs": [
       "apps/start/src/components/integrations/forms/gcs-export-integration.tsx:128",
       "apps/start/src/components/integrations/forms/s3-export-integration.tsx:186"
+    ]
+  },
+  "Keep subscription": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing.tsx:273",
+      "packages/payments/src/subscription-state-meta.ts:139"
+    ]
+  },
+  "Last": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:370",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:377"
     ]
   },
   "Last name": {
@@ -2223,6 +2554,16 @@
       "apps/start/src/routes/share.dashboard.$shareId.tsx:146"
     ]
   },
+  "No results found": {
+    "count": 2,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-line-chart.tsx:114",
+      "apps/start/src/components/overview/overview-list-modal.tsx:259"
+    ]
+  },
   "No rules yet": {
     "count": 2,
     "kinds": [
@@ -2231,16 +2572,6 @@
     "refs": [
       "apps/start/src/components/notifications/notification-rules.tsx:29",
       "apps/start/src/routes/_app.$organizationId.$projectId.notifications._tabs.rules.tsx:44"
-    ]
-  },
-  "Not in cohort": {
-    "count": 2,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/overview/filters/overview-filters-buttons.tsx:93",
-      "apps/start/src/components/report/sidebar/filters/CohortFilterItem.tsx:157"
     ]
   },
   "Nothing selected": {
@@ -2263,6 +2594,17 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.references.tsx:84"
     ]
   },
+  "Onboarding": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/routes/_steps.tsx:59",
+      "packages/constants/index.ts:602"
+    ]
+  },
   "Open source analytics": {
     "count": 2,
     "kinds": [
@@ -2281,17 +2623,6 @@
     "refs": [
       "apps/start/src/components/login-navbar.tsx:29",
       "apps/start/src/components/login-navbar.tsx:67"
-    ]
-  },
-  "OpenPanel.dev": {
-    "count": 2,
-    "kinds": [
-      "jsx",
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/public-page-card.tsx:38",
-      "apps/start/src/routes/__root.tsx:62"
     ]
   },
   "Optional description": {
@@ -2486,6 +2817,17 @@
       "apps/start/src/routes/_app.$organizationId.account._tabs.two-factor.tsx:102"
     ]
   },
+  "Resume subscription": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing.tsx:273",
+      "packages/payments/src/subscription-state-meta.ts:162"
+    ]
+  },
   "Role": {
     "count": 2,
     "kinds": [
@@ -2494,6 +2836,16 @@
     "refs": [
       "apps/start/src/components/settings/invites/columns.tsx:37",
       "apps/start/src/components/settings/members/columns.tsx:50"
+    ]
+  },
+  "Saving...": {
+    "count": 2,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/gcs-export-integration.tsx:183",
+      "apps/start/src/components/integrations/forms/s3-export-integration.tsx:322"
     ]
   },
   "Screen View Property": {
@@ -2536,6 +2888,17 @@
       "apps/start/src/components/chat/model-picker.tsx:38"
     ]
   },
+  "Select project": {
+    "count": 2,
+    "kinds": [
+      "attr",
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/project-mapper.tsx:89",
+      "apps/start/src/components/project-selector.tsx:83"
+    ]
+  },
   "Session Duration": {
     "count": 2,
     "kinds": [
@@ -2544,6 +2907,27 @@
     "refs": [
       "apps/start/src/components/overview/overview-metrics.tsx:71",
       "apps/start/src/components/overview/overview-weekly-trends.tsx:41"
+    ]
+  },
+  "Set up tracking": {
+    "count": 2,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/onboarding/activation-banner.tsx:141",
+      "apps/start/src/modals/add-project.tsx:121"
+    ]
+  },
+  "Since": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:371",
+      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:377"
     ]
   },
   "Static": {
@@ -2606,6 +2990,26 @@
     "refs": [
       "apps/start/src/components/report/sidebar/ReportSettings.tsx:161",
       "apps/start/src/components/report-chart/common/report-table.tsx:933"
+    ]
+  },
+  "Testing...": {
+    "count": 2,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/gcs-export-integration.tsx:180",
+      "apps/start/src/components/integrations/forms/s3-export-integration.tsx:319"
+    ]
+  },
+  "This action cannot be undone.": {
+    "count": 2,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/active-integrations.tsx:90",
+      "apps/start/src/components/notifications/rule-card.tsx:112"
     ]
   },
   "Top {0}": {
@@ -2679,16 +3083,6 @@
     "refs": [
       "apps/start/src/components/report/sidebar/ReportSettings.tsx:127",
       "apps/start/src/components/report/sidebar/ReportSettings.tsx:130"
-    ]
-  },
-  "Unknown": {
-    "count": 2,
-    "kinds": [
-      "jsx"
-    ],
-    "refs": [
-      "apps/start/src/components/events/table/columns.tsx:116",
-      "apps/start/src/components/settings/invites/columns.tsx:126"
     ]
   },
   "Update payment": {
@@ -2800,6 +3194,24 @@
     ],
     "refs": [
       "apps/start/src/components/organization/billing-plan-picker.tsx:281"
+    ]
+  },
+  "(read-only)": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/settings/invites/columns.tsx:134"
+    ]
+  },
+  "(truncated)": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/tool-results/chat-table-result.tsx:90"
     ]
   },
   "{0} - Event name": {
@@ -3324,6 +3736,15 @@
       "apps/start/src/components/page/gsc-ctr-benchmark.tsx:159"
     ]
   },
+  "• {0} profiles": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/realtime/map/map-badge-detail-card.tsx:79"
+    ]
+  },
   "+ also: {0}": {
     "count": 1,
     "kinds": [
@@ -3369,15 +3790,6 @@
       "apps/start/src/modals/disable-two-factor.tsx:40"
     ]
   },
-  "180 days": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:397"
-    ]
-  },
   "2 months for free": {
     "count": 1,
     "kinds": [
@@ -3403,15 +3815,6 @@
     ],
     "refs": [
       "apps/start/src/components/projects/project-card.tsx:151"
-    ]
-  },
-  "30 days": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:395"
     ]
   },
   "30 Days": {
@@ -3441,15 +3844,6 @@
       "apps/start/src/components/projects/project-card.tsx:150"
     ]
   },
-  "365 days": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:398"
-    ]
-  },
   "3M": {
     "count": 1,
     "kinds": [
@@ -3468,15 +3862,6 @@
       "apps/start/src/components/projects/project-card.tsx:117"
     ]
   },
-  "7 days": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:394"
-    ]
-  },
   "7 Days": {
     "count": 1,
     "kinds": [
@@ -3484,15 +3869,6 @@
     ],
     "refs": [
       "apps/start/src/routes/_app.$organizationId.$projectId.insights.tsx:316"
-    ]
-  },
-  "90 days": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:396"
     ]
   },
   "A compact live visitor counter badge you can embed anywhere. Shows the current number of unique visitors with a live indicator.": {
@@ -3855,15 +4231,6 @@
       "apps/start/src/components/integrations/forms/s3-export-integration.tsx:257"
     ]
   },
-  "All": {
-    "count": 1,
-    "kinds": [
-      "jsx"
-    ],
-    "refs": [
-      "apps/start/src/components/profiles/latest-events.tsx:60"
-    ]
-  },
   "All cohorts": {
     "count": 1,
     "kinds": [
@@ -4044,6 +4411,24 @@
       "apps/start/src/components/chat/chat-drawer-empty.tsx:62"
     ]
   },
+  "Any event": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/notifications/rule-card.tsx:36"
+    ]
+  },
+  "Any events": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/ui/combobox-events.tsx:209"
+    ]
+  },
   "Any of these events": {
     "count": 1,
     "kinds": [
@@ -4060,6 +4445,15 @@
     ],
     "refs": [
       "apps/start/src/components/cohort/cohort-criteria-builder.tsx:598"
+    ]
+  },
+  "Any one of these events completes this step": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/report/sidebar/ReportFunnelSteps.tsx:227"
     ]
   },
   "Anything you want to add? (optional)": {
@@ -4125,6 +4519,60 @@
       "apps/start/src/routes/_app.$organizationId.tsx:171"
     ]
   },
+  "Are you sure you want to delete this cohort? This action cannot be undone.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.cohorts.tsx:205"
+    ]
+  },
+  "Are you sure you want to delete this project?": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/settings/delete-project.tsx:113"
+    ]
+  },
+  "Are you sure you want to delete this reference? This action cannot be undone.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.references.tsx:136"
+    ]
+  },
+  "Are you sure you want to reset the layout to default? This will clear all custom positioning and sizing.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.dashboards_.$dashboardId.tsx:334"
+    ]
+  },
+  "Are you sure you want to revoke this client? This action cannot be undone.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/clients/table/columns.tsx:70"
+    ]
+  },
+  "Are you sure you want to skip onboarding? Since you do not have any projects, you will be logged out.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/onboarding/skip-onboarding.tsx:58"
+    ]
+  },
   "arn:aws:iam::123456789012:role/OpenPanelExportRole": {
     "count": 1,
     "kinds": [
@@ -4170,15 +4618,6 @@
       "apps/start/src/components/chat/chat-context-widget.tsx:78"
     ]
   },
-  "At least": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:290"
-    ]
-  },
   "At least one event is required": {
     "count": 1,
     "kinds": [
@@ -4195,15 +4634,6 @@
     ],
     "refs": [
       "apps/start/src/routes/_steps.onboarding.project.tsx:322"
-    ]
-  },
-  "At most": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:292"
     ]
   },
   "Authenticates the MCP server (base64-encoded client ID and secret).": {
@@ -4593,6 +5023,15 @@
       "apps/start/src/components/report/sidebar/ReportFunnelSteps.tsx:370"
     ]
   },
+  "Change subscription": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing.tsx:288"
+    ]
+  },
   "Change this event?": {
     "count": 1,
     "kinds": [
@@ -4681,6 +5120,15 @@
     ],
     "refs": [
       "apps/start/src/components/chat/tool-results/chat-ui-apply-result.tsx:49"
+    ]
+  },
+  "Click to refresh": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/events/event-listener.tsx:63"
     ]
   },
   "Client created successfully": {
@@ -4863,6 +5311,15 @@
       "apps/start/src/modals/date-time-picker.tsx:180"
     ]
   },
+  "Confirm Unsubscribe": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/routes/unsubscribe.tsx:81"
+    ]
+  },
   "Connect any MCP-compatible AI client (Claude, Cursor, Windsurf, …) to your OpenPanel data. The server is read-only and exposes 38 tools for querying events, sessions, profiles, funnels, retention and more.": {
     "count": 1,
     "kinds": [
@@ -5043,6 +5500,15 @@
       "apps/start/src/modals/insight-details.tsx:216"
     ]
   },
+  "Couldn't translate that into a filter — try rephrasing.": {
+    "count": 1,
+    "kinds": [
+      "toast"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-ai-command.tsx:67"
+    ]
+  },
   "Count": {
     "count": 1,
     "kinds": [
@@ -5122,6 +5588,15 @@
     ],
     "refs": [
       "apps/start/src/components/sidebar-organization-menu.tsx:112"
+    ]
+  },
+  "Create a report": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/onboarding/activation-banner.tsx:141"
     ]
   },
   "Create account": {
@@ -5214,6 +5689,15 @@
       "apps/start/src/routes/_login.login.tsx:52"
     ]
   },
+  "Creating...": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/dashboards/select-dashboard.tsx:132"
+    ]
+  },
   "Criteria": {
     "count": 1,
     "kinds": [
@@ -5275,6 +5759,15 @@
     ],
     "refs": [
       "apps/start/src/modals/add-notification-rule.tsx:178"
+    ]
+  },
+  "Daily Events": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing-usage.tsx:225"
     ]
   },
   "Dark": {
@@ -5349,6 +5842,15 @@
       "apps/start/src/components/report-chart/retention/table.tsx:58"
     ]
   },
+  "Date range": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/events/table/index.tsx:366"
+    ]
+  },
   "Day": {
     "count": 1,
     "kinds": [
@@ -5365,6 +5867,15 @@
     ],
     "refs": [
       "apps/start/src/components/profiles/profile-metrics.tsx:73"
+    ]
+  },
+  "Decline": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/report-chart/funnel/chart.tsx:695"
     ]
   },
   "Decreasing": {
@@ -5464,6 +5975,15 @@
     ],
     "refs": [
       "apps/start/src/modals/event-details.tsx:77"
+    ]
+  },
+  "Direct Impact": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/supporter-prompt.tsx:43"
     ]
   },
   "Direct link to the analytics badge widget.": {
@@ -5644,6 +6164,15 @@
     ],
     "refs": [
       "apps/start/src/components/project-mapper.tsx:73"
+    ]
+  },
+  "Early Access": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/supporter-prompt.tsx:38"
     ]
   },
   "Easy to use": {
@@ -5934,6 +6463,24 @@
       "apps/start/src/components/dashboards/select-dashboard.tsx:110"
     ]
   },
+  "Enter one of your recovery codes. Each code can be used only once.": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/routes/_login.verify.tsx:59"
+    ]
+  },
+  "Enter the 6-digit code from your authenticator app.": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/routes/_login.verify.tsx:59"
+    ]
+  },
   "Enter your password": {
     "count": 1,
     "kinds": [
@@ -5977,6 +6524,15 @@
     ],
     "refs": [
       "apps/start/src/components/cohort/cohort-criteria-builder.tsx:470"
+    ]
+  },
+  "Event for this step": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/report/sidebar/ReportFunnelSteps.tsx:227"
     ]
   },
   "Event note": {
@@ -6087,15 +6643,6 @@
       "apps/start/src/components/sessions/replay/replay-event-feed.tsx:82"
     ]
   },
-  "Exactly": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:291"
-    ]
-  },
   "Example:": {
     "count": 1,
     "kinds": [
@@ -6148,6 +6695,15 @@
     ],
     "refs": [
       "apps/start/src/components/settings/edit-project-filters.tsx:274"
+    ]
+  },
+  "Exclusive Discord Role": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/supporter-prompt.tsx:33"
     ]
   },
   "Exit Pages": {
@@ -6258,6 +6814,24 @@
       "apps/start/src/components/integrations/forms/discord-integration.tsx:73"
     ]
   },
+  "Failed to update options": {
+    "count": 1,
+    "kinds": [
+      "toast"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.widgets.tsx:66"
+    ]
+  },
+  "Failed to update widget": {
+    "count": 1,
+    "kinds": [
+      "toast"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.widgets.tsx:51"
+    ]
+  },
   "Fast and reliable": {
     "count": 1,
     "kinds": [
@@ -6265,6 +6839,15 @@
     ],
     "refs": [
       "apps/start/src/components/login-left-panel.tsx:26"
+    ]
+  },
+  "Feature Requests": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/supporter-prompt.tsx:28"
     ]
   },
   "File URL": {
@@ -6366,15 +6949,6 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.groups_.$groupId._tabs.index.tsx:94"
     ]
   },
-  "Flat": {
-    "count": 1,
-    "kinds": [
-      "jsx"
-    ],
-    "refs": [
-      "apps/start/src/routes/_app.$organizationId.$projectId.insights.tsx:350"
-    ]
-  },
   "For app and backend events you need the correct {0}. Copy it here if needed. Never use the client secret in web or client-side code—it would expose your credentials.": {
     "count": 1,
     "kinds": [
@@ -6429,13 +7003,13 @@
       "apps/start/src/components/auth/sign-in-email-form.tsx:75"
     ]
   },
-  "Free trial": {
+  "Formula": {
     "count": 1,
     "kinds": [
-      "object"
+      "jsx"
     ],
     "refs": [
-      "packages/payments/src/subscription-state-meta.ts:64"
+      "apps/start/src/modals/view-chart-users.tsx:270"
     ]
   },
   "Frequency": {
@@ -6472,15 +7046,6 @@
     ],
     "refs": [
       "apps/start/src/components/project-mapper.tsx:69"
-    ]
-  },
-  "Funnel": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/modals/add-notification-rule.tsx:137"
     ]
   },
   "Funnel Group": {
@@ -6708,6 +7273,15 @@
       "apps/start/src/modals/edit-group.tsx:63"
     ]
   },
+  "Grouped": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/report-chart/common/report-table-toolbar.tsx:41"
+    ]
+  },
   "Has any of": {
     "count": 1,
     "kinds": [
@@ -6769,6 +7343,15 @@
     ],
     "refs": [
       "apps/start/src/components/organization/feedback-prompt.tsx:70"
+    ]
+  },
+  "Hide domain": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-top-pages.tsx:134"
     ]
   },
   "High bounce": {
@@ -7104,6 +7687,24 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.tsx:48"
     ]
   },
+  "Improvement": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/report-chart/funnel/chart.tsx:695"
+    ]
+  },
+  "in cohort": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/filters/overview-filters-buttons.tsx:101"
+    ]
+  },
   "Include events": {
     "count": 1,
     "kinds": [
@@ -7185,6 +7786,15 @@
       "apps/start/src/modals/Instructions.tsx:24"
     ]
   },
+  "Integrate our web SDK to your site to get pages here.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/pages/table/index.tsx:125"
+    ]
+  },
   "Integration": {
     "count": 1,
     "kinds": [
@@ -7221,6 +7831,24 @@
       "apps/start/src/components/integrations/active-integrations.tsx:73"
     ]
   },
+  "Interval": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/report/ReportInterval.tsx:104"
+    ]
+  },
+  "Invalid {0}. Please check your syntax.": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/json-editor.tsx:213"
+    ]
+  },
   "Invitation to {0}": {
     "count": 1,
     "kinds": [
@@ -7246,6 +7874,15 @@
     ],
     "refs": [
       "apps/start/src/routes/_app.$organizationId.members._tabs.tsx:42"
+    ]
+  },
+  "Invite": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/onboarding/activation-banner.tsx:141"
     ]
   },
   "Invite a teammate": {
@@ -7446,15 +8083,6 @@
       "apps/start/src/components/report/sidebar/ReportFunnelSteps.tsx:369"
     ]
   },
-  "Keep subscription": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "packages/payments/src/subscription-state-meta.ts:139"
-    ]
-  },
   "Keyboard shortcut: Cmd+J": {
     "count": 1,
     "kinds": [
@@ -7480,15 +8108,6 @@
     ],
     "refs": [
       "apps/start/src/components/integrations/forms/s3-export-integration.tsx:301"
-    ]
-  },
-  "Last": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:370"
     ]
   },
   "Last 12 months": {
@@ -7644,6 +8263,15 @@
       "apps/start/src/components/chat/chat-drawer-body.tsx:100"
     ]
   },
+  "Latest Docker Images": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/supporter-prompt.tsx:18"
+    ]
+  },
   "Latest Events": {
     "count": 1,
     "kinds": [
@@ -7741,6 +8369,24 @@
     ],
     "refs": [
       "apps/start/src/components/overview/overview-top-events.tsx:55"
+    ]
+  },
+  "Listening": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/events/event-listener.tsx:55"
+    ]
+  },
+  "Listening to new events": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/events/event-listener.tsx:63"
     ]
   },
   "Live · 30 min": {
@@ -8058,6 +8704,24 @@
       "apps/start/src/components/ui/date-time.tsx:52"
     ]
   },
+  "Mock revenue": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-metrics.tsx:161"
+    ]
+  },
+  "Mock revenue on": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-metrics.tsx:161"
+    ]
+  },
   "Mode": {
     "count": 1,
     "kinds": [
@@ -8092,6 +8756,15 @@
     ],
     "refs": [
       "packages/constants/index.ts:61"
+    ]
+  },
+  "Monthly": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing-plan-picker.tsx:301"
     ]
   },
   "More {0}": {
@@ -8164,15 +8837,6 @@
     ],
     "refs": [
       "apps/start/src/modals/move-report.tsx:55"
-    ]
-  },
-  "N/A": {
-    "count": 1,
-    "kinds": [
-      "jsx"
-    ],
-    "refs": [
-      "apps/start/src/components/report-chart/metric/metric-card.tsx:66"
     ]
   },
   "Name (A → Z)": {
@@ -8292,6 +8956,15 @@
       "apps/start/src/routes/__root.tsx:80"
     ]
   },
+  "No active plan": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing.tsx:319"
+    ]
+  },
   "No activity": {
     "count": 1,
     "kinds": [
@@ -8317,6 +8990,15 @@
     ],
     "refs": [
       "apps/start/src/routes/_app.$organizationId.$projectId.seo.tsx:528"
+    ]
+  },
+  "No change": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/report-chart/funnel/chart.tsx:695"
     ]
   },
   "No cohorts": {
@@ -8445,6 +9127,15 @@
       "apps/start/src/components/overview/overview-user-journey.tsx:246"
     ]
   },
+  "No match": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/ui/combobox.tsx:93"
+    ]
+  },
   "No matching reports": {
     "count": 1,
     "kinds": [
@@ -8461,6 +9152,15 @@
     ],
     "refs": [
       "apps/start/src/components/pages/table/index.tsx:124"
+    ]
+  },
+  "No pages found matching \"{0}\"": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/pages/table/index.tsx:125"
     ]
   },
   "No profile": {
@@ -8607,6 +9307,24 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.insights.tsx:334"
     ]
   },
+  "No thanks": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/cancel-subscription-flow.tsx:276"
+    ]
+  },
+  "No thanks, cancel": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/cancel-subscription-flow.tsx:276"
+    ]
+  },
   "No usage data yet": {
     "count": 1,
     "kinds": [
@@ -8634,6 +9352,15 @@
       "apps/start/src/components/integrations/forms/s3-export-integration.tsx:292"
     ]
   },
+  "not in cohort": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/filters/overview-filters-buttons.tsx:101"
+    ]
+  },
   "Notices about your trial ending, event ingestion being paused, and data scheduled for removal": {
     "count": 1,
     "kinds": [
@@ -8641,6 +9368,24 @@
     ],
     "refs": [
       "packages/constants/index.ts:619"
+    ]
+  },
+  "Notification rule created": {
+    "count": 1,
+    "kinds": [
+      "toast"
+    ],
+    "refs": [
+      "apps/start/src/modals/add-notification-rule.tsx:69"
+    ]
+  },
+  "Notification rule updated": {
+    "count": 1,
+    "kinds": [
+      "toast"
+    ],
+    "refs": [
+      "apps/start/src/modals/add-notification-rule.tsx:69"
     ]
   },
   "Number of days for custom date filter": {
@@ -8677,15 +9422,6 @@
     ],
     "refs": [
       "apps/start/src/components/report/sidebar/ReportSettings.tsx:114"
-    ]
-  },
-  "Onboarding": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "packages/constants/index.ts:602"
     ]
   },
   "One last thing — 30% off for a year": {
@@ -9246,6 +9982,15 @@
       "apps/start/src/components/ui/carousel.tsx:222"
     ]
   },
+  "Prioritized Support": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/supporter-prompt.tsx:23"
+    ]
+  },
   "Privacy by default": {
     "count": 1,
     "kinds": [
@@ -9262,6 +10007,15 @@
     ],
     "refs": [
       "apps/start/src/routes/_public.onboarding.tsx:81"
+    ]
+  },
+  "Private": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-share.tsx:50"
     ]
   },
   "Product alerts": {
@@ -9453,6 +10207,15 @@
       "apps/start/src/components/cohort/cohort-criteria-builder.tsx:56"
     ]
   },
+  "Property: {0}": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/report/sidebar/ReportSeriesItem.tsx:145"
+    ]
+  },
   "Protect your account with an authenticator app (Google Authenticator, 1Password, Authy, etc.). You'll be asked for a 6-digit code each time you sign in with email and password.": {
     "count": 1,
     "kinds": [
@@ -9469,6 +10232,15 @@
     ],
     "refs": [
       "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.imports.tsx:162"
+    ]
+  },
+  "Public": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-share.tsx:50"
     ]
   },
   "Quality didn't meet my expectations": {
@@ -9505,6 +10277,15 @@
     ],
     "refs": [
       "packages/payments/src/subscription-state-meta.ts:99"
+    ]
+  },
+  "Reactivate subscription": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing.tsx:288"
     ]
   },
   "Read (access export API)": {
@@ -9550,6 +10331,15 @@
     ],
     "refs": [
       "apps/start/src/components/settings/project-access-grants.tsx:85"
+    ]
+  },
+  "Read: You can access the current projects data from the export API": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/modals/add-client.tsx:133"
     ]
   },
   "Ready when you're": {
@@ -9604,6 +10394,15 @@
     ],
     "refs": [
       "apps/start/src/components/realtime/map/map-badge-detail-card.tsx:199"
+    ]
+  },
+  "Recommended for AWS S3. Create an IAM role that grants OpenPanel access.": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/s3-export-integration.tsx:216"
     ]
   },
   "Reference": {
@@ -9739,6 +10538,24 @@
     ],
     "refs": [
       "apps/start/src/components/report/sidebar/ReportFunnelSteps.tsx:345"
+    ]
+  },
+  "Removed event not used by any step: {0}": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/report/sidebar/ReportFunnelSteps.tsx:101"
+    ]
+  },
+  "Removed events not used by any step: {0}": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/report/sidebar/ReportFunnelSteps.tsx:101"
     ]
   },
   "Report": {
@@ -9912,15 +10729,6 @@
       "apps/start/src/components/settings/project-access-grants.tsx:54"
     ]
   },
-  "Resume subscription": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "packages/payments/src/subscription-state-meta.ts:162"
-    ]
-  },
   "Retained Users:": {
     "count": 1,
     "kinds": [
@@ -10000,6 +10808,15 @@
     ],
     "refs": [
       "apps/start/src/modals/add-client.tsx:125"
+    ]
+  },
+  "Root: You can access any projects data from the export API": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/modals/add-client.tsx:135"
     ]
   },
   "Round Eyes": {
@@ -10317,6 +11134,15 @@
       "apps/start/src/routes/_app.$organizationId.tsx:174"
     ]
   },
+  "Select {0} - {1}": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/modals/date-ranger-picker.tsx:88"
+    ]
+  },
   "Select 2 events": {
     "count": 1,
     "kinds": [
@@ -10506,13 +11332,13 @@
       "apps/start/src/components/report/sidebar/ReportSettings.tsx:221"
     ]
   },
-  "Select project": {
+  "Select property": {
     "count": 1,
     "kinds": [
-      "attr"
+      "jsx"
     ],
     "refs": [
-      "apps/start/src/components/project-mapper.tsx:89"
+      "apps/start/src/components/report/sidebar/ReportSeriesItem.tsx:145"
     ]
   },
   "Select region": {
@@ -10558,6 +11384,15 @@
     ],
     "refs": [
       "apps/start/src/components/report/sidebar/filters/FilterItem.tsx:297"
+    ]
+  },
+  "Self-hosted analytics": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/login-navbar.tsx:22"
     ]
   },
   "Send message": {
@@ -10731,15 +11566,6 @@
       "apps/start/src/components/chat/chat-drawer-empty.tsx:53"
     ]
   },
-  "Set up tracking": {
-    "count": 1,
-    "kinds": [
-      "jsx"
-    ],
-    "refs": [
-      "apps/start/src/modals/add-project.tsx:121"
-    ]
-  },
   "Set up two-factor authentication": {
     "count": 1,
     "kinds": [
@@ -10830,6 +11656,15 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.widgets.tsx:213"
     ]
   },
+  "Show domain": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-top-pages.tsx:134"
+    ]
+  },
   "Show Paths": {
     "count": 1,
     "kinds": [
@@ -10891,15 +11726,6 @@
     ],
     "refs": [
       "apps/start/src/routes/_login.verify.tsx:33"
-    ]
-  },
-  "Since": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/cohort/cohort-criteria-builder.tsx:371"
     ]
   },
   "Since the user already has an account we have added him/her to your organization. This means you will not see this user in the list of invites.": {
@@ -10981,6 +11807,15 @@
     ],
     "refs": [
       "apps/start/src/modals/view-chart-users.tsx:175"
+    ]
+  },
+  "Something went wrong. Try again.": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/chat-drawer-body.tsx:76"
     ]
   },
   "Sort by": {
@@ -11208,6 +12043,15 @@
       "packages/payments/src/subscription-state-meta.ts:135"
     ]
   },
+  "Successfully connected": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/onboarding/onboarding-verify-listener.tsx:42"
+    ]
+  },
   "Successfully signed in": {
     "count": 1,
     "kinds": [
@@ -11296,15 +12140,6 @@
     ],
     "refs": [
       "apps/start/src/routes/_public.onboarding.tsx:72"
-    ]
-  },
-  "Test connection": {
-    "count": 1,
-    "kinds": [
-      "jsx"
-    ],
-    "refs": [
-      "apps/start/src/components/integrations/forms/discord-integration.tsx:94"
     ]
   },
   "Test notification sent": {
@@ -11460,6 +12295,15 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.cohorts_.$cohortId._tabs.index.tsx:72"
     ]
   },
+  "this day": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing-usage.tsx:280"
+    ]
+  },
   "This organization has an active subscription. Cancel it from the billing settings before you delete the organization.": {
     "count": 1,
     "kinds": [
@@ -11503,6 +12347,15 @@
     ],
     "refs": [
       "apps/start/src/components/report/sidebar/ReportFunnelSteps.tsx:251"
+    ]
+  },
+  "this week": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing-usage.tsx:280"
     ]
   },
   "This widget is not available or has been removed.": {
@@ -11611,6 +12464,15 @@
     ],
     "refs": [
       "apps/start/src/components/overview/overview-metrics.tsx:157"
+    ]
+  },
+  "Tool failed": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/tool-results/shared.tsx:33"
     ]
   },
   "Top {0}s": {
@@ -11991,6 +12853,24 @@
       "apps/start/src/components/realtime/realtime-live-histogram.tsx:108"
     ]
   },
+  "Unknown date": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing-usage.tsx:270"
+    ]
+  },
+  "Unnamed Report": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/report/edit-report-name.tsx:68"
+    ]
+  },
   "Unpaid": {
     "count": 1,
     "kinds": [
@@ -12034,6 +12914,24 @@
     ],
     "refs": [
       "apps/start/src/routes/unsubscribe.tsx:56"
+    ]
+  },
+  "Unsubscribing...": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/routes/unsubscribe.tsx:81"
+    ]
+  },
+  "Untitled chat": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/chat-drawer-header.tsx:90"
     ]
   },
   "Update event": {
@@ -12099,6 +12997,33 @@
       "apps/start/src/components/organization/billing-usage.tsx:70"
     ]
   },
+  "Use a recovery code instead": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/routes/_login.verify.tsx:117"
+    ]
+  },
+  "Use access keys for Cloudflare R2, MinIO, DigitalOcean Spaces, or other S3-compatible storage.": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/s3-export-integration.tsx:216"
+    ]
+  },
+  "Use authenticator app instead": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/routes/_login.verify.tsx:117"
+    ]
+  },
   "Use existing workspace": {
     "count": 1,
     "kinds": [
@@ -12124,6 +13049,15 @@
     ],
     "refs": [
       "apps/start/src/components/overview/overview-user-journey.tsx:225"
+    ]
+  },
+  "User not identified": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.profiles.$profileId._tabs.tsx:76"
     ]
   },
   "UTM Campaign": {
@@ -12225,6 +13159,15 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.dashboards_.$dashboardId.tsx:288"
     ]
   },
+  "View JSON": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/modals/event-details.tsx:284"
+    ]
+  },
   "View project": {
     "count": 1,
     "kinds": [
@@ -12232,6 +13175,15 @@
     ],
     "refs": [
       "apps/start/src/modals/add-project.tsx:59"
+    ]
+  },
+  "View raw output": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/tool-results/default-tool-result.tsx:66"
     ]
   },
   "View report": {
@@ -12250,6 +13202,15 @@
     ],
     "refs": [
       "apps/start/src/components/chat/chat-drawer-empty.tsx:64"
+    ]
+  },
+  "View Table": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/modals/event-details.tsx:284"
     ]
   },
   "View users who completed this step": {
@@ -12286,6 +13247,15 @@
     ],
     "refs": [
       "apps/start/src/routes/widget/realtime.tsx:324"
+    ]
+  },
+  "Waiting for events": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/onboarding/onboarding-verify-listener.tsx:42"
     ]
   },
   "Waiting for your first event": {
@@ -12387,6 +13357,15 @@
       "packages/constants/index.ts:606"
     ]
   },
+  "Weekly Events": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing-usage.tsx:225"
+    ]
+  },
   "Welcome back!": {
     "count": 1,
     "kinds": [
@@ -12439,6 +13418,24 @@
     ],
     "refs": [
       "apps/start/src/components/insights/insight-card.tsx:214"
+    ]
+  },
+  "Widget disabled": {
+    "count": 1,
+    "kinds": [
+      "toast"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.widgets.tsx:48"
+    ]
+  },
+  "Widget enabled": {
+    "count": 1,
+    "kinds": [
+      "toast"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.widgets.tsx:48"
     ]
   },
   "Widget not found": {
@@ -12540,6 +13537,15 @@
       "apps/start/src/components/integrations/forms/webhook-integration.tsx:248"
     ]
   },
+  "Write: Is the default client type and is used for ingestion of data": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/modals/add-client.tsx:131"
+    ]
+  },
   "Wrong client secret": {
     "count": 1,
     "kinds": [
@@ -12565,6 +13571,15 @@
     ],
     "refs": [
       "packages/constants/index.ts:71"
+    ]
+  },
+  "Yearly": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing-plan-picker.tsx:301"
     ]
   },
   "Yearly billing — {0} {1}": {
@@ -12619,6 +13634,24 @@
     ],
     "refs": [
       "apps/start/src/components/organization/billing-plan-picker.tsx:269"
+    ]
+  },
+  "You have canceled your subscription. It will be canceled on {0} — reactivate it to keep your access.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:96"
+    ]
+  },
+  "You have canceled your subscription. Reactivate it to keep your access.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:96"
     ]
   },
   "You have not created any cohorts for this project yet": {
@@ -12873,6 +13906,15 @@
       "apps/start/src/routes/_steps.onboarding.project.tsx:272"
     ]
   },
+  "Your free trial has ended.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:87"
+    ]
+  },
   "Your free trial has ended. Upgrade to keep using OpenPanel.": {
     "count": 1,
     "kinds": [
@@ -12918,6 +13960,15 @@
       "apps/start/src/components/organization/billing-prompt.tsx:64"
     ]
   },
+  "Your last payment failed — please update your payment method.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:185"
+    ]
+  },
   "Your last payment failed. Update your payment method to avoid losing access.": {
     "count": 1,
     "kinds": [
@@ -12943,6 +13994,24 @@
     ],
     "refs": [
       "apps/start/src/modals/add-import.tsx:178"
+    ]
+  },
+  "Your organization is on a free trial.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:65"
+    ]
+  },
+  "Your organization is on a free trial. It ends on {0}.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:65"
     ]
   },
   "Your overview is now {0}": {
@@ -12972,6 +14041,42 @@
       "apps/start/src/modals/share-report-modal.tsx:67"
     ]
   },
+  "Your subscription expired": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:237"
+    ]
+  },
+  "Your subscription expired on {0}": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:237"
+    ]
+  },
+  "Your subscription expired on {0}. Choose a plan to regain access.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:230"
+    ]
+  },
+  "Your subscription expired. Choose a plan to regain access.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:230"
+    ]
+  },
   "Your subscription is on a break": {
     "count": 1,
     "kinds": [
@@ -12979,6 +14084,60 @@
     ],
     "refs": [
       "apps/start/src/components/organization/billing-prompt.tsx:74"
+    ]
+  },
+  "Your subscription is paused": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:166"
+    ]
+  },
+  "Your subscription is paused and resumes on {0}. Your events are still being collected.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:159"
+    ]
+  },
+  "Your subscription is paused until {0}": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:166"
+    ]
+  },
+  "Your subscription is paused. Your events are still being collected — resume any time to pick up where you left off.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:159"
+    ]
+  },
+  "Your subscription is scheduled to pause at the end of the current period. We keep collecting your events while it's paused.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:136"
+    ]
+  },
+  "Your subscription is unpaid.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:202"
     ]
   },
   "Your subscription is unpaid. Update your payment method to restore access.": {
@@ -12990,6 +14149,33 @@
       "packages/payments/src/subscription-state-meta.ts:196"
     ]
   },
+  "Your subscription pauses on {0}. We keep collecting your events while it's paused{1}.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:136"
+    ]
+  },
+  "Your subscription renews on {0}": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:55"
+    ]
+  },
+  "Your subscription setup is incomplete.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:219"
+    ]
+  },
   "Your subscription setup is incomplete. Complete checkout to activate it.": {
     "count": 1,
     "kinds": [
@@ -12997,6 +14183,78 @@
     ],
     "refs": [
       "packages/payments/src/subscription-state-meta.ts:213"
+    ]
+  },
+  "Your subscription stays active until {0}.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/cancel-subscription-flow.tsx:134"
+    ]
+  },
+  "Your subscription was canceled": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:123"
+    ]
+  },
+  "Your subscription was canceled on {0}": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:123"
+    ]
+  },
+  "Your subscription was canceled on {0}. Choose a plan to regain access.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:116"
+    ]
+  },
+  "Your subscription was canceled. Choose a plan to regain access.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:116"
+    ]
+  },
+  "Your subscription will be canceled on {0}": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:104"
+    ]
+  },
+  "Your subscription will be paused at the end of the current period": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:148"
+    ]
+  },
+  "Your subscription will be paused on {0}": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:144"
     ]
   },
   "Your support directly funds development": {
@@ -13015,6 +14273,15 @@
     ],
     "refs": [
       "apps/start/src/components/organization/billing-usage.tsx:315"
+    ]
+  },
+  "Your trial ends on {0}": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:72"
     ]
   },
   "Your trial ends on {0}. When it ends, your dashboards pause until you choose a plan — your data keeps flowing in.": {
