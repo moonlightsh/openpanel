@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildNodes, extraPlaceholders, fmt, placeholderSet } from '../shared/runtime-core.mjs';
+import { buildNodes, extraPlaceholders, fmt, placeholderSet, safeParseDict } from '../shared/runtime-core.mjs';
 
 describe('fmt — 值插值', () => {
   it('按索引替换', () => {
@@ -49,5 +49,24 @@ describe('extraPlaceholders — 占位符门禁', () => {
   });
   it('placeholderSet 提取全部索引', () => {
     expect([...placeholderSet('x {0} y {2} z {0}')].sort()).toEqual([0, 2]);
+  });
+});
+
+describe('safeParseDict — 损坏字典回退（F2）', () => {
+  it('合法扁平字典原样返回', () => {
+    expect(safeParseDict('{"Cancel":"取消"}')).toEqual({ Cancel: '取消' });
+  });
+  it('损坏 JSON -> {}（不抛异常）', () => {
+    expect(safeParseDict('{ not json')).toEqual({});
+  });
+  it('顶层为数组 -> {}', () => {
+    expect(safeParseDict('["a","b"]')).toEqual({});
+  });
+  it('顶层为 null -> {}', () => {
+    expect(safeParseDict('null')).toEqual({});
+  });
+  it('含非字符串值 -> {}（整体回退英文）', () => {
+    expect(safeParseDict('{"a":"x","b":123}')).toEqual({});
+    expect(safeParseDict('{"a":{"nested":true}}')).toEqual({});
   });
 });

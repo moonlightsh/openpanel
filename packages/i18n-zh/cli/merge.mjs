@@ -52,6 +52,8 @@ console.log('missing indices:', missing.length?missing.join(','):'none');
 console.log('placeholder EXTRA (中文多出,真 bug):', phExtra.length);
 for(const m of phExtra.slice(0,40)) { console.log(`  #${m.i} extra[${m.extra}] "${m.en.slice(0,50)}" | "${m.cn.slice(0,40)}"`); }
 console.log('placeholder dropped (中文少,允许,如复数后缀):', phDropped.length, phDropped.map(d=>`#${d.i}`).join(' '));
+// F4：merge 侧也作硬门禁 —— 译文多出原文没有的占位符即失败（与 build.mjs 双路径一致）
+if (phExtra.length) { throw new Error(`占位符完整性校验失败：${phExtra.length} 条译文含原文没有的占位符（见上方 #idx 明细）`); }
 
 // 生成双语核对文件
 let bi='';

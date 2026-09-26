@@ -3,3 +3,4 @@ export function fmt(text: string, args: unknown[]): string;
 export function buildNodes(text: string, parts: unknown[]): unknown[];
 export function placeholderSet(s: string): Set<number>;
 export function extraPlaceholders(en: string, cn: string): number[];
+export function safeParseDict(text: string): Record<string, string>;

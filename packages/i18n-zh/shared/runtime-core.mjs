@@ -46,6 +46,26 @@ export function buildNodes(text, parts) {
   return nodes;
 }
 
+// 安全解析字典文本（构建期用；F2）：解析失败 / 非对象 / 数组 / 含非字符串值
+// 一律回退为 {}，保证虚模块永远是合法 JS 且运行时回退英文，绝不因字典损坏而崩溃。
+export function safeParseDict(text) {
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return {};
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return {};
+  }
+  for (const v of Object.values(parsed)) {
+    if (typeof v !== 'string') {
+      return {};
+    }
+  }
+  return parsed;
+}
+
 // ---- 占位符完整性（构建期门禁，设计 §5.2）----
 export function placeholderSet(s) {
   const set = new Set();
