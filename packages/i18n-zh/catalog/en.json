@@ -177,6 +177,35 @@
       "apps/start/src/modals/create-invite.tsx:116"
     ]
   },
+  "Profile": {
+    "count": 7,
+    "kinds": [
+      "attr",
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/tool-results/chat-profile-result.tsx:67",
+      "apps/start/src/components/notifications/table/columns.tsx:161",
+      "apps/start/src/components/profile-toggle.tsx:48",
+      "apps/start/src/components/report/sidebar/ReportSettings.tsx:189",
+      "apps/start/src/routes/_app.$organizationId.$projectId.sessions_.$sessionId.tsx:328"
+    ]
+  },
+  "Search": {
+    "count": 7,
+    "kinds": [
+      "attr",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/notifications/table/columns.tsx:38",
+      "apps/start/src/components/report/sidebar/PropertiesCombobox.tsx:115",
+      "apps/start/src/components/ui/combobox-advanced.tsx:127",
+      "apps/start/src/components/ui/data-table/data-table-toolbar.tsx:64",
+      "apps/start/src/components/ui/data-table/data-table-toolbar.tsx:195"
+    ]
+  },
   "(Not set)": {
     "count": 6,
     "kinds": [
@@ -231,20 +260,6 @@
       "apps/start/src/components/report/sidebar/filters/CohortFilterItem.tsx:159"
     ]
   },
-  "Profile": {
-    "count": 6,
-    "kinds": [
-      "jsx",
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/notifications/table/columns.tsx:161",
-      "apps/start/src/components/profile-toggle.tsx:48",
-      "apps/start/src/components/report/sidebar/ReportSettings.tsx:189",
-      "apps/start/src/routes/_app.$organizationId.$projectId.sessions_.$sessionId.tsx:328",
-      "apps/start/src/routes/_app.$organizationId.account._tabs.index.tsx:69"
-    ]
-  },
   "Required": {
     "count": 6,
     "kinds": [
@@ -282,6 +297,20 @@
       "apps/start/src/components/report/sidebar/ReportSeriesItem.tsx:116",
       "apps/start/src/modals/overview-filters.tsx:197",
       "apps/start/src/modals/table-filters.tsx:152"
+    ]
+  },
+  "Delete": {
+    "count": 5,
+    "kinds": [
+      "attr",
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/chat-drawer-header.tsx:171",
+      "apps/start/src/components/integrations/active-integrations.tsx:84",
+      "apps/start/src/components/notifications/rule-card.tsx:106",
+      "apps/start/src/routes/_app.$organizationId.$projectId.references.tsx:131",
+      "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.imports.tsx:287"
     ]
   },
   "Failed to create integration": {
@@ -543,18 +572,6 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.references.tsx:101"
     ]
   },
-  "Delete": {
-    "count": 4,
-    "kinds": [
-      "jsx"
-    ],
-    "refs": [
-      "apps/start/src/components/integrations/active-integrations.tsx:84",
-      "apps/start/src/components/notifications/rule-card.tsx:106",
-      "apps/start/src/routes/_app.$organizationId.$projectId.references.tsx:131",
-      "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.imports.tsx:287"
-    ]
-  },
   "Delete account": {
     "count": 4,
     "kinds": [
@@ -678,19 +695,6 @@
       "apps/start/src/components/overview/overview-user-journey.tsx:242",
       "apps/start/src/components/overview/overview-weekly-trends.tsx:151",
       "apps/start/src/routes/share.overview.$shareId.tsx:80"
-    ]
-  },
-  "Search": {
-    "count": 4,
-    "kinds": [
-      "attr",
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/notifications/table/columns.tsx:38",
-      "apps/start/src/components/report/sidebar/PropertiesCombobox.tsx:115",
-      "apps/start/src/components/ui/combobox-advanced.tsx:127",
-      "apps/start/src/routes/_app.$organizationId.$projectId.references.tsx:68"
     ]
   },
   "SEO": {
@@ -1283,6 +1287,19 @@
       "apps/start/src/components/filters/TableFilterPills.tsx:155",
       "apps/start/src/components/overview/filters/overview-filters-buttons.tsx:126",
       "apps/start/src/components/overview/filters/overview-filters-buttons.tsx:197"
+    ]
+  },
+  "Report": {
+    "count": 3,
+    "kinds": [
+      "attr",
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/tool-results/chat-report-result.tsx:59",
+      "apps/start/src/routes/_app.$organizationId.$projectId.dashboards_.$dashboardId.tsx:312",
+      "apps/start/src/routes/share.report.$shareId.tsx:61"
     ]
   },
   "Select format": {
@@ -2126,6 +2143,16 @@
       "apps/start/src/routes/_app.$organizationId.account._tabs.two-factor.tsx:109"
     ]
   },
+  "Display name": {
+    "count": 2,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/report/sidebar/ReportSeries.tsx:352",
+      "apps/start/src/components/report/sidebar/report-fixed-events.tsx:198"
+    ]
+  },
   "Done": {
     "count": 2,
     "kinds": [
@@ -2412,6 +2439,16 @@
     "refs": [
       "apps/start/src/components/auth/sign-up-email-form.tsx:51",
       "apps/start/src/routes/_app.$organizationId.account._tabs.index.tsx:84"
+    ]
+  },
+  "Leave blank to keep the current key": {
+    "count": 2,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/gcs-export-integration.tsx:144",
+      "apps/start/src/components/integrations/forms/s3-export-integration.tsx:264"
     ]
   },
   "Let us know!": {
@@ -2828,17 +2865,6 @@
       "apps/start/src/routes/_app.$organizationId.account._tabs.two-factor.tsx:102"
     ]
   },
-  "Report": {
-    "count": 2,
-    "kinds": [
-      "jsx",
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/routes/_app.$organizationId.$projectId.dashboards_.$dashboardId.tsx:312",
-      "apps/start/src/routes/share.report.$shareId.tsx:61"
-    ]
-  },
   "Resume subscription": {
     "count": 2,
     "kinds": [
@@ -3245,6 +3271,15 @@
       "apps/start/src/components/chat/tool-results/chat-table-result.tsx:90"
     ]
   },
+  "{\"type\": \"service_account\", \"project_id\": \"...\", ...}": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/gcs-export-integration.tsx:144"
+    ]
+  },
   "{0} - Event name": {
     "count": 1,
     "kinds": [
@@ -3495,6 +3530,15 @@
     ],
     "refs": [
       "apps/start/src/components/report/sidebar/ReportEventMore.tsx:29"
+    ]
+  },
+  "{0} events at {1}": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/sessions/replay/replay-timeline.tsx:230"
     ]
   },
   "{0} Groups": {
@@ -5153,6 +5197,15 @@
       "apps/start/src/components/chat/tool-results/chat-ui-apply-result.tsx:49"
     ]
   },
+  "Click again to confirm": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/chat-drawer-header.tsx:171"
+    ]
+  },
   "Click to refresh": {
     "count": 1,
     "kinds": [
@@ -5322,6 +5375,15 @@
     ],
     "refs": [
       "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.mcp.tsx:227"
+    ]
+  },
+  "Confirm delete": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/chat-drawer-header.tsx:170"
     ]
   },
   "Confirm password": {
@@ -5720,6 +5782,24 @@
       "apps/start/src/routes/_login.login.tsx:52"
     ]
   },
+  "Create rule": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/modals/add-notification-rule.tsx:108"
+    ]
+  },
+  "Create your first project to get started with analytics.": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.index.tsx:56"
+    ]
+  },
   "Creating...": {
     "count": 1,
     "kinds": [
@@ -5943,6 +6023,15 @@
     ],
     "refs": [
       "apps/start/src/components/report/sidebar/ReportSettings.tsx:176"
+    ]
+  },
+  "Delete conversation": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/chat-drawer-header.tsx:170"
     ]
   },
   "Delete group": {
@@ -6224,6 +6313,15 @@
       "apps/start/src/components/settings/members/columns.tsx:110"
     ]
   },
+  "Edit access for {0}": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/modals/edit-member.tsx:55"
+    ]
+  },
   "Edit client": {
     "count": 1,
     "kinds": [
@@ -6260,6 +6358,15 @@
       "apps/start/src/modals/edit-group.tsx:72"
     ]
   },
+  "Edit member access": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/modals/edit-member.tsx:55"
+    ]
+  },
   "Edit reference": {
     "count": 1,
     "kinds": [
@@ -6276,6 +6383,15 @@
     ],
     "refs": [
       "apps/start/src/modals/edit-report.tsx:31"
+    ]
+  },
+  "Edit rule": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/modals/add-notification-rule.tsx:108"
     ]
   },
   "Edit: {0}": {
@@ -6492,6 +6608,15 @@
     ],
     "refs": [
       "apps/start/src/components/dashboards/select-dashboard.tsx:110"
+    ]
+  },
+  "Enter fullscreen": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/sessions/replay/index.tsx:123"
     ]
   },
   "Enter one of your recovery codes. Each code can be used only once.": {
@@ -6735,6 +6860,15 @@
     ],
     "refs": [
       "apps/start/src/components/organization/supporter-prompt.tsx:33"
+    ]
+  },
+  "Exit fullscreen": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/sessions/replay/index.tsx:123"
     ]
   },
   "Exit Pages": {
@@ -7340,6 +7474,15 @@
       "apps/start/src/components/integrations/forms/webhook-integration.tsx:174"
     ]
   },
+  "Header Value": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/webhook-integration.tsx:179"
+    ]
+  },
   "Headers": {
     "count": 1,
     "kinds": [
@@ -7788,6 +7931,15 @@
     ],
     "refs": [
       "apps/start/src/modals/event-details.tsx:311"
+    ]
+  },
+  "Insights will appear here as trends are detected in your analytics.": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.insights.tsx:374"
     ]
   },
   "Install Server": {
@@ -9734,6 +9886,15 @@
       "apps/start/src/components/realtime/realtime-paths.tsx:34"
     ]
   },
+  "Pause": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/sessions/replay/replay-controls.tsx:28"
+    ]
+  },
   "Pause for {0} {1}": {
     "count": 1,
     "kinds": [
@@ -9903,6 +10064,15 @@
     ],
     "refs": [
       "apps/start/src/components/organization/billing-prompt.tsx:82"
+    ]
+  },
+  "Play": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/sessions/replay/replay-controls.tsx:28"
     ]
   },
   "Please add a domain": {
@@ -12110,6 +12280,24 @@
       "apps/start/src/components/sidebar.tsx:168"
     ]
   },
+  "Switch to chart view": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-view-toggle.tsx:32"
+    ]
+  },
+  "Switch to table view": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/overview/overview-view-toggle.tsx:32"
+    ]
+  },
   "Switch to yearly — get 2 months free": {
     "count": 1,
     "kinds": [
@@ -12767,6 +12955,15 @@
       "packages/payments/src/subscription-state-meta.ts:62"
     ]
   },
+  "Try adjusting your filters to see more insights.": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.insights.tsx:374"
+    ]
+  },
   "Try it for free today!": {
     "count": 1,
     "kinds": [
@@ -12846,6 +13043,15 @@
     ],
     "refs": [
       "apps/start/src/modals/add-client.tsx:107"
+    ]
+  },
+  "Unchanged": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/webhook-integration.tsx:179"
     ]
   },
   "Unhappy with customer service": {
@@ -13505,6 +13711,15 @@
       "apps/start/src/components/settings/edit-project-details.tsx:191"
     ]
   },
+  "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/s3-export-integration.tsx:264"
+    ]
+  },
   "Workspace": {
     "count": 1,
     "kinds": [
@@ -13656,6 +13871,15 @@
     ],
     "refs": [
       "apps/start/src/components/organization/billing-plan-picker.tsx:269"
+    ]
+  },
+  "You do not have access to any projects in this organization yet. Ask an admin to grant you access.": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.index.tsx:56"
     ]
   },
   "You have canceled your subscription. It will be canceled on {0} — reactivate it to keep your access.": {

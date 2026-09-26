@@ -108,5 +108,15 @@
     "en": "JSON",
     "reason": "格式名",
     "kinds": "jsx"
+  },
+  {
+    "en": "{\"type\": \"service_account\", \"project_id\": \"...\", ...}",
+    "reason": "JSON 示例",
+    "kinds": "attr"
+  },
+  {
+    "en": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+    "reason": "示例密钥",
+    "kinds": "attr"
   }
 ]

@@ -149,3 +149,18 @@ describe('rewriteFile — 嵌套模板表达式中的字符串（Round-4 BLOCKER
     expect(tplCount).toBe(2); // 外层 + 内层模板均为叶子
   });
 });
+
+describe('rewriteFile — 白名单属性中的条件/逻辑字符串（Round-5 BLOCKER）', () => {
+  it('条件 placeholder：两个字符串分支都被包 __opT，保留属性容器结构', () => {
+    const out = rw("const x = <input placeholder={ok ? 'Display name' : 'Header Value'} />;");
+    expect(out).toContain('__opT("Display name")');
+    expect(out).toContain('__opT("Header Value")');
+    expect(out).toMatch(/placeholder=\{[\s\S]*\?[\s\S]*:/); // 属性下的三元结构保留
+  });
+
+  it('条件 aria-label：字符串分支被包 __opT', () => {
+    const out = rw("const x = <button aria-label={playing ? 'Pause' : 'Play'} />;");
+    expect(out).toContain('__opT("Pause")');
+    expect(out).toContain('__opT("Play")');
+  });
+});

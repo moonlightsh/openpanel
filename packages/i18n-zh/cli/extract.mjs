@@ -99,6 +99,7 @@ for (const file of files){
         if (isStrLit(e)) { add(e.value, 'attr', rel, line); }
         else if (tplNoExpr(e)) { add(e.quasis[0].value.cooked ?? '', 'attr', rel, line); }
         else if (e && e.type === 'TemplateLiteral') { add(tplToMsg(e), 'attr', rel, line); }
+        else if (e && (e.type === 'ConditionalExpression' || e.type === 'LogicalExpression')) { addLeaves(e, 'attr', rel, line); }
       }
     },
     CallExpression(path){

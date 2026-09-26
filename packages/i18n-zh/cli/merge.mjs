@@ -21,7 +21,7 @@ for (const invFile of ['_inventory.tsv','_inventory_delta.tsv']){
   }
 }
 const zh = new Map(); const dupes=[];
-for (const f of ['_zh_1.tsv','_zh_2.tsv','_zh_3.tsv','_zh_4.tsv','_zh_5.tsv','_zh_6.tsv','_zh_7.tsv','_zh_8.tsv','_zh_9.tsv']){
+for (const f of ['_zh_1.tsv','_zh_2.tsv','_zh_3.tsv','_zh_4.tsv','_zh_5.tsv','_zh_6.tsv','_zh_7.tsv','_zh_8.tsv','_zh_9.tsv','_zh_10.tsv']){
   for (const line of readText(join(CAT,f)).split('\n')){
     if(!line.trim()) { continue; }
     const i = line.indexOf('|||');

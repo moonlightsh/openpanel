@@ -196,6 +196,9 @@ export function rewriteFile(code: string, rejectSet: Set<string>): { code: strin
           const msgid = normalize(raw);
           if (!accept(msgid)) { return; }
           edits.push({ start: v.start, end: v.end, replacement: `{${buildT(msgid, argSrcs)}}`, needsRuntime: true });
+        } else if (isNodeLikeExpr(e)) {
+          // 条件/逻辑属性值（如 placeholder={cond ? 'A' : 'B'}）：改写其字符串分支（分支为字符串 -> __opT）
+          rewriteExprString(code, e, edits, accept);
         }
       }
     },
