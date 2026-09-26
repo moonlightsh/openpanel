@@ -24,8 +24,14 @@ export const REJECT_COMPONENT = /(CodeMirror|CodeBlock|SyntaxHighlight|Highlight
 // 不再 blanket packages/**：
 //   - 避免误改 validation/db/协议等非 UI 语义数据（F3）；
 //   - 避免提取器扫到 dashboard 未 import 的包（email/queue 等）产生虚假 catalog。
-// 共享 UI 文件白名单（绝对路径后缀）：目前仅 packages/constants 的时间窗等 label。
-export const SHARED_UI_FILES = ['/packages/constants/index.ts'];
+// 共享 UI 文件白名单（绝对路径后缀）：仅列入被 apps/start 直接渲染的共享 UI 文案文件。
+// 注意：只加确属 UI 展示文案的文件；ai/*（LLM 提示词）、validation/*（zod schema）、
+// db/*（内部）等即便含 label/title/description 键也严禁列入，避免误译提示词/协议元数据。
+export const SHARED_UI_FILES = [
+  '/packages/constants/index.ts',
+  '/packages/payments/src/subscription-state-meta.ts', // 订阅状态 badge/title/description/cta
+  '/packages/importer/src/providers/metadata.ts', // 导入源 description（name 为品牌名，不在白名单）
+];
 export function shouldTranslateFile(rawPath) {
   const s = String(rawPath).replace(/\\/g, '/');
   if (s.includes('/node_modules/')) { return false; }

@@ -779,6 +779,18 @@
       "apps/start/src/components/organization/cancel-subscription-flow.tsx:315"
     ]
   },
+  "Choose a plan": {
+    "count": 3,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing.tsx:340",
+      "packages/payments/src/subscription-state-meta.ts:119",
+      "packages/payments/src/subscription-state-meta.ts:233"
+    ]
+  },
   "Clicks & Impressions": {
     "count": 3,
     "kinds": [
@@ -1248,6 +1260,17 @@
       "apps/start/src/components/organization/billing-usage.tsx:301",
       "apps/start/src/components/profiles/profile-metrics.tsx:10",
       "apps/start/src/routes/_app.$organizationId.$projectId.groups_.$groupId._tabs.index.tsx:78"
+    ]
+  },
+  "Trial ended": {
+    "count": 3,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing-prompt.tsx:42",
+      "packages/payments/src/subscription-state-meta.ts:79",
+      "packages/payments/src/subscription-state-meta.ts:81"
     ]
   },
   "Used last time": {
@@ -2352,6 +2375,16 @@
       "apps/start/src/routes/widget/realtime.tsx:509"
     ]
   },
+  "Paused": {
+    "count": 2,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/billing-prompt.tsx:72",
+      "packages/payments/src/subscription-state-meta.ts:156"
+    ]
+  },
   "Period": {
     "count": 2,
     "kinds": [
@@ -2533,6 +2566,28 @@
       "apps/start/src/components/report-chart/sankey/chart.tsx:210"
     ]
   },
+  "Subscription canceled": {
+    "count": 2,
+    "kinds": [
+      "object",
+      "toast"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/cancel-subscription-flow.tsx:133",
+      "packages/payments/src/subscription-state-meta.ts:115"
+    ]
+  },
+  "Subscription paused": {
+    "count": 2,
+    "kinds": [
+      "object",
+      "toast"
+    ],
+    "refs": [
+      "apps/start/src/components/organization/cancel-subscription-flow.tsx:100",
+      "packages/payments/src/subscription-state-meta.ts:158"
+    ]
+  },
   "Subscription updated": {
     "count": 2,
     "kinds": [
@@ -2634,6 +2689,16 @@
     "refs": [
       "apps/start/src/components/events/table/columns.tsx:116",
       "apps/start/src/components/settings/invites/columns.tsx:126"
+    ]
+  },
+  "Update payment": {
+    "count": 2,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:181",
+      "packages/payments/src/subscription-state-meta.ts:198"
     ]
   },
   "User has been invited": {
@@ -4492,6 +4557,24 @@
       "apps/start/src/components/settings/delete-account.tsx:31"
     ]
   },
+  "Canceled": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:113"
+    ]
+  },
+  "Canceling": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:93"
+    ]
+  },
   "Capped at 10,000 members — consider narrowing the criteria.": {
     "count": 1,
     "kinds": [
@@ -4526,15 +4609,6 @@
     ],
     "refs": [
       "apps/start/src/routes/_app.tsx:30"
-    ]
-  },
-  "Choose a plan": {
-    "count": 1,
-    "kinds": [
-      "jsx"
-    ],
-    "refs": [
-      "apps/start/src/components/organization/billing.tsx:340"
     ]
   },
   "Choose which Google Search Console property to connect to this project.": {
@@ -4733,6 +4807,15 @@
     ],
     "refs": [
       "apps/start/src/components/login-left-panel.tsx:37"
+    ]
+  },
+  "Complete checkout": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:215"
     ]
   },
   "Confidence: {0}": {
@@ -6076,6 +6159,15 @@
       "apps/start/src/components/overview/overview-top-pages.tsx:49"
     ]
   },
+  "Expired": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:227"
+    ]
+  },
   "External ID (optional)": {
     "count": 1,
     "kinds": [
@@ -6229,6 +6321,15 @@
       "apps/start/src/components/report/sidebar/ReportFunnelSteps.tsx:363"
     ]
   },
+  "Finish setting up your subscription": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:212"
+    ]
+  },
   "First event": {
     "count": 1,
     "kinds": [
@@ -6326,6 +6427,15 @@
     ],
     "refs": [
       "apps/start/src/components/auth/sign-in-email-form.tsx:75"
+    ]
+  },
+  "Free trial": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:64"
     ]
   },
   "Frequency": {
@@ -6949,6 +7059,33 @@
       "apps/start/src/modals/add-import.tsx:397"
     ]
   },
+  "Import your analytics data from Mixpanel API": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/importer/src/providers/metadata.ts:25"
+    ]
+  },
+  "Import your analytics data from the Amplitude Export API": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/importer/src/providers/metadata.ts:33"
+    ]
+  },
+  "Import your analytics data from Umami": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/importer/src/providers/metadata.ts:17"
+    ]
+  },
   "Important notices about your projects: tracking stopped sending data, event limits, and alerts from your notification rules": {
     "count": 1,
     "kinds": [
@@ -6974,6 +7111,15 @@
     ],
     "refs": [
       "apps/start/src/components/report/sidebar/ReportSettings.tsx:282"
+    ]
+  },
+  "Incomplete": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:210"
     ]
   },
   "Incorrect password": {
@@ -7298,6 +7444,15 @@
     ],
     "refs": [
       "apps/start/src/components/report/sidebar/ReportFunnelSteps.tsx:369"
+    ]
+  },
+  "Keep subscription": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:139"
     ]
   },
   "Keyboard shortcut: Cmd+J": {
@@ -8785,6 +8940,15 @@
       "apps/start/src/components/auth/reset-password-form.tsx:21"
     ]
   },
+  "Past due": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:176"
+    ]
+  },
   "Paste the contents of your GCS service account JSON key file (a document with {0}). The service account needs write access to the specified bucket.": {
     "count": 1,
     "kinds": [
@@ -8812,13 +8976,13 @@
       "apps/start/src/components/organization/cancel-subscription-flow.tsx:278"
     ]
   },
-  "Paused": {
+  "Pausing": {
     "count": 1,
     "kinds": [
       "object"
     ],
     "refs": [
-      "apps/start/src/components/organization/billing-prompt.tsx:72"
+      "packages/payments/src/subscription-state-meta.ts:133"
     ]
   },
   "Pay What You Want": {
@@ -8846,6 +9010,15 @@
     ],
     "refs": [
       "apps/start/src/components/organization/billing-prompt.tsx:62"
+    ]
+  },
+  "Payment past due": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:178"
     ]
   },
   "Percentage (High → Low)": {
@@ -9325,6 +9498,15 @@
       "apps/start/src/components/report-chart/bar/chart.tsx:217"
     ]
   },
+  "Reactivate": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:99"
+    ]
+  },
   "Read (access export API)": {
     "count": 1,
     "kinds": [
@@ -9728,6 +9910,15 @@
     ],
     "refs": [
       "apps/start/src/components/settings/project-access-grants.tsx:54"
+    ]
+  },
+  "Resume subscription": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:162"
     ]
   },
   "Retained Users:": {
@@ -10954,15 +11145,6 @@
       "apps/start/src/components/organization/billing-usage.tsx:209"
     ]
   },
-  "Subscription canceled": {
-    "count": 1,
-    "kinds": [
-      "toast"
-    ],
-    "refs": [
-      "apps/start/src/components/organization/cancel-subscription-flow.tsx:133"
-    ]
-  },
   "Subscription ended": {
     "count": 1,
     "kinds": [
@@ -10972,13 +11154,13 @@
       "apps/start/src/components/organization/billing-prompt.tsx:52"
     ]
   },
-  "Subscription paused": {
+  "Subscription expired": {
     "count": 1,
     "kinds": [
-      "toast"
+      "object"
     ],
     "refs": [
-      "apps/start/src/components/organization/cancel-subscription-flow.tsx:100"
+      "packages/payments/src/subscription-state-meta.ts:229"
     ]
   },
   "Subscription resumed": {
@@ -10990,6 +11172,15 @@
       "apps/start/src/components/organization/billing.tsx:61"
     ]
   },
+  "Subscription unpaid": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:195"
+    ]
+  },
   "Subscription updated successfully": {
     "count": 1,
     "kinds": [
@@ -10997,6 +11188,24 @@
     ],
     "refs": [
       "apps/start/src/modals/billing-success.tsx:36"
+    ]
+  },
+  "Subscription will be canceled": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:95"
+    ]
+  },
+  "Subscription will be paused": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:135"
     ]
   },
   "Successfully signed in": {
@@ -11665,13 +11874,13 @@
       "apps/start/src/routes/_app.$organizationId.$projectId.settings._tabs.tsx:45"
     ]
   },
-  "Trial ended": {
+  "Trial": {
     "count": 1,
     "kinds": [
       "object"
     ],
     "refs": [
-      "apps/start/src/components/organization/billing-prompt.tsx:42"
+      "packages/payments/src/subscription-state-meta.ts:62"
     ]
   },
   "Try it for free today!": {
@@ -11782,6 +11991,15 @@
       "apps/start/src/components/realtime/realtime-live-histogram.tsx:108"
     ]
   },
+  "Unpaid": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:193"
+    ]
+  },
   "Unselect All": {
     "count": 1,
     "kinds": [
@@ -11834,6 +12052,24 @@
     ],
     "refs": [
       "apps/start/src/routes/_app.$organizationId.$projectId.cohorts.tsx:145"
+    ]
+  },
+  "Upgrade": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:84"
+    ]
+  },
+  "Upgrade from $2.5/month": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:68"
     ]
   },
   "Upgrade now": {
@@ -12637,6 +12873,15 @@
       "apps/start/src/routes/_steps.onboarding.project.tsx:272"
     ]
   },
+  "Your free trial has ended. Upgrade to keep using OpenPanel.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:82"
+    ]
+  },
   "Your Google Search Console authorization has expired or been revoked. Please reconnect to continue syncing data.": {
     "count": 1,
     "kinds": [
@@ -12671,6 +12916,15 @@
     ],
     "refs": [
       "apps/start/src/components/organization/billing-prompt.tsx:64"
+    ]
+  },
+  "Your last payment failed. Update your payment method to avoid losing access.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:179"
     ]
   },
   "Your Mixpanel project ID": {
@@ -12725,6 +12979,24 @@
     ],
     "refs": [
       "apps/start/src/components/organization/billing-prompt.tsx:74"
+    ]
+  },
+  "Your subscription is unpaid. Update your payment method to restore access.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:196"
+    ]
+  },
+  "Your subscription setup is incomplete. Complete checkout to activate it.": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:213"
     ]
   },
   "Your support directly funds development": {
