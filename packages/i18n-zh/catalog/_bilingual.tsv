@@ -1559,3 +1559,12 @@
 1559	1	attr	"Unchanged"	未更改
 1560	1	attr	"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"	⟨不翻译:示例密钥⟩
 1561	1	attr	"You do not have access to any projects in this organization yet. Ask an admin to grant you access."	你还没有该组织中任何项目的访问权限。请让管理员授予你访问权限。
+1562	2	jsx	"vs {0}"	对比 {0}
+1563	1	jsx	"{0} {1} pages"	{0} {1} 页面
+1564	1	attr	"{0} at {1}"	{0} 于 {1}
+1565	1	jsx	"{0} item{1}"	{0} 个项目
+1566	1	jsx	"{0} min"	{0} 分钟
+1567	1	jsx	"{0} more"	还有 {0} 个
+1568	1	jsx	"{0} selected"	已选 {0} 个
+1569	1	jsx	"{0} sessions {1}"	{0} 个会话 {1}
+1570	1	jsx	"{0} slider"	{0} 滑块

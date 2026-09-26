@@ -62,7 +62,11 @@ export function isRejected(msgid) {
   if (!/[A-Za-z]/.test(bare)) { return true; // 无字母
 }
   if (URL_FORM.test(bare)) { return true; }
-  if (CODE_FORM.test(bare)) { return true; // 代码形态
+  // 代码形态判定仅对“无占位符”的串生效：带 {N} 占位符的是 UI 插值模板，
+  // 其占位符之间的短小写连接词（at/to/of 等）不是代码标识符（如 aria-label 的
+  // `{0} at {1}`）。避免 CODE_FORM 误拒这类无障碍文案。
+  const hasPlaceholder = /\{\d+\}/.test(msgid);
+  if (!hasPlaceholder && CODE_FORM.test(bare)) { return true; // 代码形态
 }
   if (/^\d[\d.,\s]*$/.test(bare)) { return true; // 纯数字
 }

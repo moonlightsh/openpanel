@@ -3184,6 +3184,16 @@
       "apps/start/src/modals/gsc-details.tsx:180"
     ]
   },
+  "vs {0}": {
+    "count": 2,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/insights/insight-card.tsx:198",
+      "apps/start/src/modals/insight-details.tsx:156"
+    ]
+  },
   "Website": {
     "count": 2,
     "kinds": [
@@ -3370,6 +3380,15 @@
       "apps/start/src/components/integrations/forms/webhook-integration.tsx:274"
     ]
   },
+  "{0} {1} pages": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/page/gsc-cannibalization.tsx:152"
+    ]
+  },
   "{0} / N/A": {
     "count": 1,
     "kinds": [
@@ -3413,6 +3432,15 @@
     ],
     "refs": [
       "apps/start/src/components/ui/data-table/data-table-column-header.tsx:62"
+    ]
+  },
+  "{0} at {1}": {
+    "count": 1,
+    "kinds": [
+      "attr"
+    ],
+    "refs": [
+      "apps/start/src/components/sessions/replay/replay-timeline.tsx:230"
     ]
   },
   "{0} Benchmark": {
@@ -3613,6 +3641,15 @@
       "apps/start/src/components/auth/share-enter-password.tsx:55"
     ]
   },
+  "{0} item{1}": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/tool-results/default-tool-result.tsx:66"
+    ]
+  },
   "{0} Make private": {
     "count": 1,
     "kinds": [
@@ -3629,6 +3666,24 @@
     ],
     "refs": [
       "apps/start/src/components/overview/overview-share.tsx:56"
+    ]
+  },
+  "{0} min": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/chat/tool-results/chat-profile-result.tsx:85"
+    ]
+  },
+  "{0} more": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.dashboards.tsx:177"
     ]
   },
   "{0} more events": {
@@ -3721,6 +3776,15 @@
       "apps/start/src/components/report/sidebar/ReportBreakdowns.tsx:92"
     ]
   },
+  "{0} selected": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/ui/data-table/data-table-faceted-filter.tsx:114"
+    ]
+  },
   "{0} Sessions": {
     "count": 1,
     "kinds": [
@@ -3728,6 +3792,15 @@
     ],
     "refs": [
       "apps/start/src/components/page/page-views-chart.tsx:105"
+    ]
+  },
+  "{0} sessions {1}": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/realtime/map/map-badge-detail-card.tsx:74"
     ]
   },
   "{0} Share dashboard": {
@@ -3755,6 +3828,15 @@
     ],
     "refs": [
       "apps/start/src/routes/_public.onboarding.tsx:154"
+    ]
+  },
+  "{0} slider": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/ui/data-table/data-table-slider-filter.tsx:214"
     ]
   },
   "{0} Steps": {

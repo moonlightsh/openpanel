@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseExpression } from '@babel/parser';
 import { rewriteFile } from '../plugin/index.ts';
-import { collectValueStringLeaves } from '../shared/rules.mjs';
+import { collectValueStringLeaves, isRejected } from '../shared/rules.mjs';
 
 // 便捷：改写并返回结果代码（null 视作空串，便于断言"未改写"）。
 function rw(code: string, reject: string[] = []): string {
@@ -162,5 +162,22 @@ describe('rewriteFile — 白名单属性中的条件/逻辑字符串（Round-5 
     const out = rw("const x = <button aria-label={playing ? 'Pause' : 'Play'} />;");
     expect(out).toContain('__opT("Pause")');
     expect(out).toContain('__opT("Play")');
+  });
+});
+
+describe('isRejected — 带占位符的 UI 模板不被误当代码拒结（Round-6）', () => {
+  it('占位符之间的短连接词不被 CODE_FORM 误拒', () => {
+    expect(isRejected('{0} at {1}')).toBe(false);
+    expect(isRejected('{0} min')).toBe(false);
+    expect(isRejected('vs {0}')).toBe(false);
+  });
+  it('无占位符的真代码标识符仍被拒（保护未回归）', () => {
+    expect(isRejected('foo.bar')).toBe(true);
+    expect(isRejected('some_key/path')).toBe(true);
+    expect(isRejected('https://x.com')).toBe(true);
+  });
+  it('纯占位符/无字母仍被拒', () => {
+    expect(isRejected('{0}')).toBe(true);
+    expect(isRejected('{0} - {1}')).toBe(true); // 无字母
   });
 });

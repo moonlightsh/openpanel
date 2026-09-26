@@ -1535,5 +1535,14 @@
   "Switch to table view": "切换到表格视图",
   "Try adjusting your filters to see more insights.": "尝试调整筛选条件以查看更多洞察。",
   "Unchanged": "未更改",
-  "You do not have access to any projects in this organization yet. Ask an admin to grant you access.": "你还没有该组织中任何项目的访问权限。请让管理员授予你访问权限。"
+  "You do not have access to any projects in this organization yet. Ask an admin to grant you access.": "你还没有该组织中任何项目的访问权限。请让管理员授予你访问权限。",
+  "vs {0}": "对比 {0}",
+  "{0} {1} pages": "{0} {1} 页面",
+  "{0} at {1}": "{0} 于 {1}",
+  "{0} item{1}": "{0} 个项目",
+  "{0} min": "{0} 分钟",
+  "{0} more": "还有 {0} 个",
+  "{0} selected": "已选 {0} 个",
+  "{0} sessions {1}": "{0} 个会话 {1}",
+  "{0} slider": "{0} 滑块"
 }
