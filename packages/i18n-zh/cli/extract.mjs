@@ -9,7 +9,7 @@ import {
   ATTR_WHITELIST, OBJ_KEY_WHITELIST, ZOD_METHODS,
   normalize, isRejected, 
   tagName, isStrLit, tplNoExpr, tplToMsg, hasRejectAncestor, mergeChildren,
-  REJECT_TAGS, REJECT_COMPONENT,
+  REJECT_TAGS, REJECT_COMPONENT, SHARED_UI_FILES,
 } from '../shared/rules.mjs';
 
 const traverse = _traverse.default || _traverse;
@@ -46,10 +46,15 @@ function walk(dir, acc){
 
 const files = [];
 walk(SRC, files);
+// 与 plugin 同源范围（B4）：追加共享 UI 文件（packages/constants 等）。
+for (const suffix of SHARED_UI_FILES){
+  const abs = join(REPO, suffix.replace(/^\//,''));
+  try { if (statSync(abs).isFile()) { files.push(abs); } } catch { /* 不存在则跳过 */ }
+}
 let parseErrors = 0;
 
 for (const file of files){
-  const rel = relative(join(REPO,'apps','start'), file);
+  const rel = relative(REPO, file);
   let ast;
   try {
     ast = parse(readFileSync(file,'utf8'), {
@@ -113,6 +118,7 @@ for (const file of files){
                 if (k === 'message'){
                   if (isStrLit(p.value)) { add(p.value.value, 'zod', rel, line); }
                   else if (tplNoExpr(p.value)) { add(p.value.quasis[0].value.cooked ?? '', 'zod', rel, line); }
+                  else if (p.value.type === 'TemplateLiteral') { add(tplToMsg(p.value), 'zod', rel, line); }
                 }
               }
             }
@@ -129,6 +135,7 @@ for (const file of files){
       const v = node.value;
       if (isStrLit(v)) { add(v.value, 'object', rel, line); }
       else if (tplNoExpr(v)) { add(v.quasis[0].value.cooked ?? '', 'object', rel, line); }
+      else if (v.type === 'TemplateLiteral') { add(tplToMsg(v), 'object', rel, line); }
     },
   });
 }

@@ -18,6 +18,25 @@ export const ZOD_METHODS = new Set(['min', 'max', 'email', 'url', 'regex', 'refi
 export const REJECT_TAGS = /^(code|pre)$/i;
 export const REJECT_COMPONENT = /(CodeMirror|CodeBlock|SyntaxHighlight|Highlight|Editor)/;
 
+// ---- 统一文件范围（设计 §5）----
+// plugin（改写）与 extract（提取）共用本函数，杠死“提取到的”与“改写的”范围漂移（B4）。
+// 仅：apps/start/src 全量 + 明确列入的共享 UI 文件。
+// 不再 blanket packages/**：
+//   - 避免误改 validation/db/协议等非 UI 语义数据（F3）；
+//   - 避免提取器扫到 dashboard 未 import 的包（email/queue 等）产生虚假 catalog。
+// 共享 UI 文件白名单（绝对路径后缀）：目前仅 packages/constants 的时间窗等 label。
+export const SHARED_UI_FILES = ['/packages/constants/index.ts'];
+export function shouldTranslateFile(rawPath) {
+  const s = String(rawPath).replace(/\\/g, '/');
+  if (s.includes('/node_modules/')) { return false; }
+  if (/\.(test|spec)\.(ts|tsx)$/.test(s)) { return false; }
+  if (/\.gen\.ts$/.test(s)) { return false; }
+  if (s.endsWith('/routeTree.gen.ts')) { return false; }
+  if (s.includes('/apps/start/src/') && /\.(ts|tsx)$/.test(s)) { return true; }
+  if (SHARED_UI_FILES.some((f) => s.endsWith(f))) { return true; }
+  return false;
+}
+
 // 代码形态串：纯小写+点/斜杠/下划线/冒号/井号，或 URL
 export const CODE_FORM = /^[a-z0-9_.\-/:#@]+$/;
 export const URL_FORM = /^https?:\/\//;

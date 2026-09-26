@@ -93,5 +93,15 @@
     "en": "var(--chart-label)",
     "reason": "CSS 变量",
     "kinds": "object"
+  },
+  {
+    "en": "{0} - OpenPanel.dev",
+    "reason": "纯品牌标题模板",
+    "kinds": "object"
+  },
+  {
+    "en": "{0} - {1} - OpenPanel.dev",
+    "reason": "纯品牌标题模板",
+    "kinds": "object"
   }
 ]

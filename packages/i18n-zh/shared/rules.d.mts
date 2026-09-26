@@ -4,6 +4,8 @@ export const OBJ_KEY_WHITELIST: Set<string>;
 export const ZOD_METHODS: Set<string>;
 export const REJECT_TAGS: RegExp;
 export const REJECT_COMPONENT: RegExp;
+export const SHARED_UI_FILES: string[];
+export function shouldTranslateFile(rawPath: string): boolean;
 export const CODE_FORM: RegExp;
 export const URL_FORM: RegExp;
 export function normalize(raw: string): string;

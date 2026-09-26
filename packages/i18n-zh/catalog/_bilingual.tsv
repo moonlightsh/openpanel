@@ -1342,3 +1342,33 @@
 1342	1	jsx	"Your trial ends on {0}. When it ends, your dashboards pause until you choose a plan — your data keeps flowing in."	你的试用将于 {0} 结束。结束后，你的仪表盘会暂停，直到你选择套餐——你的数据会持续流入。
 1343	1	jsx	"Your usage is above our standard plans, so let's set you up with a custom one."	你的用量超过了我们的标准套餐，让我们为你配置一个定制套餐。
 1344	1	attr	"Your website address"	你的网站地址
+1345	1	object	"A weekly summary of your analytics with AI-surfaced insights"	每周分析摘要，附 AI 洞察
+1346	1	object	"Account status"	账户状态
+1347	1	object	"Billing stops at the end of your current period and resumes on {0}. Your events keep flowing in."	计费将在本计费周期结束时停止，并于 {0} 恢复。其间事件将持续正常采集。
+1348	1	object	"Custom range"	自定义范围
+1349	2	object	"Delete {0}?"	删除 {0}？
+1350	1	object	"Get started tips and guidance emails"	入门提示与指导邮件
+1351	1	object	"Important notices about your projects: tracking stopped sending data, event limits, and alerts from your notification rules"	关于项目的重要通知：追踪停止发送数据、事件额度，以及来自通知规则的提醒
+1352	1	object	"Last 12 months"	最近 12 个月
+1353	1	object	"Last 24 hours"	最近 24 小时
+1354	1	object	"Last 3 months"	最近 3 个月
+1355	1	object	"Last 30 days"	最近 30 天
+1356	1	object	"Last 30 min"	最近 30 分钟
+1357	1	object	"Last 6 months"	最近 6 个月
+1358	1	object	"Last 7 days"	最近 7 天
+1359	1	object	"Last Month"	上个月
+1360	1	object	"Last hour"	最近 1 小时
+1361	1	object	"Last year"	去年
+1362	1	object	"Month to Date"	本月至今
+1363	1	object	"Notices about your trial ending, event ingestion being paused, and data scheduled for removal"	关于试用到期、事件采集暂停、数据即将删除的通知
+1364	1	object	"Onboarding"	新手引导
+1365	1	object	"Pick '{0}'"	选择 '{0}'
+1366	1	object	"Product alerts"	产品提醒
+1367	1	object	"Today"	今天
+1368	1	object	"Weekly digest"	每周摘要
+1369	1	object	"Year to Date"	本年至今
+1370	1	object	"Your dashboard is now {0}"	你的仪表盘现在为 {0}
+1371	1	object	"Your overview is now {0}"	你的概览现在为 {0}
+1372	1	object	"Your report is now {0}"	你的报表现在为 {0}
+1373	2	object	"{0} - OpenPanel.dev"	⟨不翻译:纯品牌标题模板⟩
+1374	3	object	"{0} - {1} - OpenPanel.dev"	⟨不翻译:纯品牌标题模板⟩

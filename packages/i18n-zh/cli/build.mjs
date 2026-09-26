@@ -12,14 +12,21 @@ function readText(p){
 }
 
 const inv = new Map();
-for (const line of readText(join(CAT,'_inventory.tsv')).split('\n')){
-  if(!line.trim()) { continue; }
-  const [idx,count,kinds,enJson] = line.split('\t');
-  let en; try{ en=JSON.parse(enJson);}catch{ throw new Error(`bad line ${line}`);}
-  inv.set(Number(idx), { en, count:Number(count), kinds });
+// _inventory.tsv 为原始冻结清单(1..1344)；_inventory_delta.tsv 为统一范围重提后新增的
+// 词条(1345+，含 packages/constants 与 apps/start 模板串)。两者索引连续，共同驱动 build。
+for (const invFile of ['_inventory.tsv','_inventory_delta.tsv']){
+  let raw = '';
+  try { raw = readText(join(CAT,invFile)); }
+  catch (e) { if (invFile === '_inventory_delta.tsv') { continue; } throw e; }
+  for (const line of raw.split('\n')){
+    if(!line.trim()) { continue; }
+    const [idx,count,kinds,enJson] = line.split('\t');
+    let en; try{ en=JSON.parse(enJson);}catch{ throw new Error(`bad line ${line}`);}
+    inv.set(Number(idx), { en, count:Number(count), kinds });
+  }
 }
 const zh = new Map();
-for (const f of ['_zh_1.tsv','_zh_2.tsv','_zh_3.tsv','_zh_4.tsv']){
+for (const f of ['_zh_1.tsv','_zh_2.tsv','_zh_3.tsv','_zh_4.tsv','_zh_5.tsv']){
   for (const line of readText(join(CAT,f)).split('\n')){
     if(!line.trim()) { continue; }
     const i=line.indexOf('|||'); zh.set(Number(line.slice(0,i)), line.slice(i+3));

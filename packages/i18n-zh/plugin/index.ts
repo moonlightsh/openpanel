@@ -26,6 +26,7 @@ import {
   isRejected,
   isStrLit,
   normalize,
+  shouldTranslateFile,
   tagName,
   tplNoExpr,
   tplToMsg,
@@ -60,16 +61,7 @@ function stripQuery(id: string): string {
   return i === -1 ? id : id.slice(0, i);
 }
 function shouldTransform(id: string): boolean {
-  const p = stripQuery(id).replace(/\\/g, '/');
-  if (p.includes('/node_modules/')) { return false; }
-  if (/\.(test|spec)\.(ts|tsx)$/.test(p)) { return false; }
-  if (/\.gen\.ts$/.test(p)) { return false; }
-  if (p.endsWith('/routeTree.gen.ts')) { return false; }
-  // apps/start/src 下的 .ts/.tsx
-  if (p.includes('/apps/start/src/') && /\.(ts|tsx)$/.test(p)) { return true; }
-  // packages/** 里的 UI 文案 .ts（排除本包自身，避免自引用）
-  if (p.includes('/packages/') && !p.includes('/packages/i18n-zh/') && /\.ts$/.test(p)) { return true; }
-  return false;
+  return shouldTranslateFile(stripQuery(id));
 }
 
 // ---- 源码片段取值 ----
