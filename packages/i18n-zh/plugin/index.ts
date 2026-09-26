@@ -109,8 +109,8 @@ interface Edit {
   composite?: { fn: 'T' | 'Tx'; msgid: string; dynamics: any[] };
 }
 
-// 核心：解析 -> 遍历规则 -> 收集编辑 -> 去重叠 -> magic-string 替换。
-function rewriteFile(code: string, rejectSet: Set<string>): { code: string; map: any } | null {
+// 核心：解析 -> 遍历规则 -> 收集编辑 -> 去重叠 -> magic-string 替换。（导出供单测）
+export function rewriteFile(code: string, rejectSet: Set<string>): { code: string; map: any } | null {
   let ast: any;
   try {
     ast = parse(code, {

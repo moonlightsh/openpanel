@@ -8,7 +8,8 @@
     "./plugin": "./plugin/index.ts"
   },
   "scripts": {
-    "i18n:extract": "node cli/extract.mjs"
+    "i18n:extract": "node cli/extract.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
     "@babel/parser": "7.29.7",
