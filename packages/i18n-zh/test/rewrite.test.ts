@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { parseExpression } from '@babel/parser';
 import { rewriteFile } from '../plugin/index.ts';
+import { collectValueStringLeaves } from '../shared/rules.mjs';
 
 // 便捷：改写并返回结果代码（null 视作空串，便于断言"未改写"）。
 function rw(code: string, reject: string[] = []): string {
@@ -79,5 +81,50 @@ describe('rewriteFile — 拒结与边界', () => {
 
   it('无字母内容（纯符号）不改写', () => {
     expect(rw('const x = <div>+++ ---</div>;')).toBe('');
+  });
+});
+
+describe('rewriteFile — 条件/逻辑表达式中的静态字符串（Round-3 BLOCKER）', () => {
+  it('JSX children 三元：两个字符串分支都被包 __opT，且保留三元结构', () => {
+    const out = rw("const x = <span>{ok ? 'Free trial' : 'No active plan'}</span>;");
+    expect(out).toContain('__opT("Free trial")');
+    expect(out).toContain('__opT("No active plan")');
+    expect(out).toMatch(/\?[\s\S]*:/); // 三元结构保留
+  });
+
+  it('JSX children 逻辑 &&：字符串后缀被包 __opT（前导空白经规范化）', () => {
+    const out = rw("const x = <span>Showing {n} {trunc && ' (truncated)'}</span>;");
+    expect(out).toContain('__opT("(truncated)")');
+  });
+
+  it('toast 三元实参：两个分支都被包 __opT', () => {
+    const out = rw("toast.success(enabled ? 'Widget enabled' : 'Widget disabled');");
+    expect(out).toContain('__opT("Widget enabled")');
+    expect(out).toContain('__opT("Widget disabled")');
+  });
+
+  it('白名单对象属性三元值：两个分支都被包 __opT', () => {
+    const out = rw("const m = { description: paid ? 'Active plan' : 'No plan' };");
+    expect(out).toContain('__opT("Active plan")');
+    expect(out).toContain('__opT("No plan")');
+  });
+
+  it('混排文本 + 条件字符串：整句 __opTx，分支 __opT（同源产出一致的 msgid 集合）', () => {
+    const out = rw("const x = <div>Status: {ok ? 'Up' : 'Down'}</div>;");
+    expect(out).toContain('__opTx("Status: {0}"');
+    expect(out).toContain('__opT("Up")');
+    expect(out).toContain('__opT("Down")');
+  });
+
+  it('collectValueStringLeaves：extract 与 rewrite 共用的叶子枚举（同源保证）', () => {
+    const leaves = (src: string) =>
+      collectValueStringLeaves(parseExpression(src)).map((n: any) =>
+        n.type === 'StringLiteral' ? n.value : n.quasis?.[0]?.value?.cooked,
+      );
+    expect(leaves("ok ? 'A' : 'B'")).toEqual(['A', 'B']);
+    expect(leaves("flag && 'X'")).toEqual(['X']);
+    expect(leaves("a ? 'A' : (b ? 'B' : 'C')")).toEqual(['A', 'B', 'C']);
+    expect(leaves('someVar')).toEqual([]); // 标识符不抽
+    expect(leaves('fn()')).toEqual([]); // 调用不抽
   });
 });

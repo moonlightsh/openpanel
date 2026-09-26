@@ -22,6 +22,7 @@ import {
   REJECT_TAGS,
   ZOD_METHODS,
   collectChildren,
+  collectValueStringLeaves,
   hasRejectAncestor,
   isRejected,
   isStrLit,
@@ -234,28 +235,41 @@ export function rewriteFile(code: string, rejectSet: Set<string>): { code: strin
       if (!OBJ_KEY_WHITELIST.has(k)) { return; }
       rewriteExprString(code, node.value, edits, accept);
     },
+    // JSX children 位置的条件/逻辑表达式：递归其字符串分支包 __opT（修复
+    // {cond ? 'A' : 'B'} / {flag && ' (x)'} 分支文案漏译）。仅 children 位置、仅
+    // Conditional/Logical（直接字符串子节点已由 collectChildren 归入整句，不重复）。
+    JSXExpressionContainer(path: any) {
+      const parent = path.parent;
+      if (!parent || (parent.type !== 'JSXElement' && parent.type !== 'JSXFragment')) { return; }
+      if (hasRejectAncestor(path)) { return; }
+      const e = path.node.expression;
+      if (!e || (e.type !== 'ConditionalExpression' && e.type !== 'LogicalExpression')) { return; }
+      rewriteExprString(code, e, edits, accept);
+    },
   });
 
   if (edits.length === 0) { return null; }
   return applyEdits(code, edits, ast);
 }
 
-// 表达式上下文里的字符串/模板改写（toast / zod / 对象属性）
+// 表达式上下文里的字符串/模板改写（toast / zod / 对象属性）；
+// 通过 collectValueStringLeaves 递归 Conditional/Logical 分支，与 extract 同源枚举。
 function rewriteExprString(code: string, node: any, edits: Edit[], accept: (m: string) => boolean) {
-  if (!node) { return; }
-  if (isStrLit(node)) {
-    const msgid = normalize(node.value);
-    if (!accept(msgid)) { return; }
-    edits.push({ start: node.start, end: node.end, replacement: buildT(msgid, []), needsRuntime: true });
-  } else if (tplNoExpr(node)) {
-    const msgid = normalize(node.quasis[0].value.cooked ?? '');
-    if (!accept(msgid)) { return; }
-    edits.push({ start: node.start, end: node.end, replacement: buildT(msgid, []), needsRuntime: true });
-  } else if (node.type === 'TemplateLiteral') {
-    const { msgid: raw, argSrcs } = tplParts(code, node);
-    const msgid = normalize(raw);
-    if (!accept(msgid)) { return; }
-    edits.push({ start: node.start, end: node.end, replacement: buildT(msgid, argSrcs), needsRuntime: true });
+  for (const leaf of collectValueStringLeaves(node)) {
+    if (isStrLit(leaf)) {
+      const msgid = normalize(leaf.value);
+      if (!accept(msgid)) { continue; }
+      edits.push({ start: leaf.start, end: leaf.end, replacement: buildT(msgid, []), needsRuntime: true });
+    } else if (tplNoExpr(leaf)) {
+      const msgid = normalize(leaf.quasis[0].value.cooked ?? '');
+      if (!accept(msgid)) { continue; }
+      edits.push({ start: leaf.start, end: leaf.end, replacement: buildT(msgid, []), needsRuntime: true });
+    } else if (leaf.type === 'TemplateLiteral') {
+      const { msgid: raw, argSrcs } = tplParts(code, leaf);
+      const msgid = normalize(raw);
+      if (!accept(msgid)) { continue; }
+      edits.push({ start: leaf.start, end: leaf.end, replacement: buildT(msgid, argSrcs), needsRuntime: true });
+    }
   }
 }
 

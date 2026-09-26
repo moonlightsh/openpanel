@@ -9,6 +9,7 @@ import {
   ATTR_WHITELIST, OBJ_KEY_WHITELIST, ZOD_METHODS,
   normalize, isRejected, 
   tagName, isStrLit, tplNoExpr, tplToMsg, hasRejectAncestor, mergeChildren,
+  collectValueStringLeaves,
   REJECT_TAGS, REJECT_COMPONENT, SHARED_UI_FILES,
 } from '../shared/rules.mjs';
 
@@ -27,6 +28,14 @@ function add(msgid, kind, file, line) {
   e.count++;
   if (e.refs.size < 5) { e.refs.add(`${file}:${line}`); }
   e.kinds.add(kind);
+}
+// 值上下文叶子枚举（与 plugin rewriteExprString 同源）：递归 Conditional/Logical 分支。
+function addLeaves(node, kind, rel, line){
+  for (const leaf of collectValueStringLeaves(node)){
+    if (isStrLit(leaf)) { add(leaf.value, kind, rel, line); }
+    else if (tplNoExpr(leaf)) { add(leaf.quasis[0].value.cooked ?? '', kind, rel, line); }
+    else if (leaf.type === 'TemplateLiteral') { add(tplToMsg(leaf), kind, rel, line); }
+  }
 }
 
 // ---- 文件遍历 ----
@@ -100,29 +109,19 @@ for (const file of files){
       if (callee.type === 'MemberExpression' && callee.object?.type === 'Identifier' && callee.object.name === 'toast') { isToast = true; }
       if (callee.type === 'Identifier' && callee.name === 'toast') { isToast = true; }
       if (isToast){
-        for (const arg of path.node.arguments){
-          if (isStrLit(arg)) { add(arg.value, 'toast', rel, line); }
-          else if (tplNoExpr(arg)) { add(arg.quasis[0].value.cooked ?? '', 'toast', rel, line); }
-          else if (arg.type === 'TemplateLiteral') { add(tplToMsg(arg), 'toast', rel, line); }
-        }
+        for (const arg of path.node.arguments){ addLeaves(arg, 'toast', rel, line); }
       }
       // zod: .min/.max/.email/.url/.regex/.refine/... 的字符串参数与 {message}
       if (callee.type === 'MemberExpression' && callee.property?.type === 'Identifier' && ZOD_METHODS.has(callee.property.name)){
         for (const arg of path.node.arguments){
-          if (isStrLit(arg)) { add(arg.value, 'zod', rel, line); }
-          else if (tplNoExpr(arg)) { add(arg.quasis[0].value.cooked ?? '', 'zod', rel, line); }
-          else if (arg.type === 'ObjectExpression'){
+          if (arg.type === 'ObjectExpression'){
             for (const p of arg.properties){
               if (p.type === 'ObjectProperty' && !p.computed){
                 const k = p.key.type === 'Identifier' ? p.key.name : (p.key.type==='StringLiteral'?p.key.value:'');
-                if (k === 'message'){
-                  if (isStrLit(p.value)) { add(p.value.value, 'zod', rel, line); }
-                  else if (tplNoExpr(p.value)) { add(p.value.quasis[0].value.cooked ?? '', 'zod', rel, line); }
-                  else if (p.value.type === 'TemplateLiteral') { add(tplToMsg(p.value), 'zod', rel, line); }
-                }
+                if (k === 'message'){ addLeaves(p.value, 'zod', rel, line); }
               }
             }
-          }
+          } else { addLeaves(arg, 'zod', rel, line); }
         }
       }
     },
@@ -132,10 +131,16 @@ for (const file of files){
       const k = node.key.type === 'Identifier' ? node.key.name : (node.key.type==='StringLiteral'?node.key.value:'');
       if (!OBJ_KEY_WHITELIST.has(k)) { return; }
       const line = node.loc?.start.line ?? 0;
-      const v = node.value;
-      if (isStrLit(v)) { add(v.value, 'object', rel, line); }
-      else if (tplNoExpr(v)) { add(v.quasis[0].value.cooked ?? '', 'object', rel, line); }
-      else if (v.type === 'TemplateLiteral') { add(tplToMsg(v), 'object', rel, line); }
+      addLeaves(node.value, 'object', rel, line);
+    },
+    // JSX children 位置的条件/逻辑表达式字符串分支（与 plugin JSXExpressionContainer 同源）。
+    JSXExpressionContainer(path){
+      const parent = path.parent;
+      if (!parent || (parent.type !== 'JSXElement' && parent.type !== 'JSXFragment')) { return; }
+      if (hasRejectAncestor(path)) { return; }
+      const e = path.node.expression;
+      if (!e || (e.type !== 'ConditionalExpression' && e.type !== 'LogicalExpression')) { return; }
+      addLeaves(e, 'jsx', rel, path.node.loc?.start.line ?? 0);
     },
   });
 }

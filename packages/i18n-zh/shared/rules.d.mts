@@ -15,6 +15,7 @@ export function tagName(node: any): string;
 export function isStrLit(n: any): boolean;
 export function tplNoExpr(n: any): boolean;
 export function tplToMsg(n: any): string;
+export function collectValueStringLeaves(node: any): any[];
 export function hasRejectAncestor(path: any): boolean;
 export function collectChildren(children: any[]): {
   raw: string;

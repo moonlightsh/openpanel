@@ -10,7 +10,7 @@ export const ATTR_WHITELIST = new Set([
 ]);
 export const OBJ_KEY_WHITELIST = new Set([
   'label', 'title', 'description', 'placeholder', 'subtitle', 'heading',
-  'tooltip', 'confirmText', 'cancelText', 'emptyMessage', 'message', 'cta', 'helperText',
+  'tooltip', 'confirmText', 'cancelText', 'emptyMessage', 'message', 'cta', 'helperText', 'text',
 ]);
 // 注意：includes/length/startsWith/endsWith 是 String/Array 通用方法，曾误抓
 // name.includes("Gradient") 等组件名匹配（chart-defs.ts）。仅保留真正的 zod 校验方法。
@@ -92,6 +92,22 @@ export function tplToMsg(n) {
     if (k < n.expressions.length) { out += `{${i++}}`; }
   }
   return out;
+}
+
+// 值上下文（toast 实参 / 白名单对象属性值 / JSX 子表达式容器）下，递归
+// ConditionalExpression / LogicalExpression 的分支，收集可译字符串叶子（StringLiteral
+// 或 TemplateLiteral）。extract 与 plugin 共用本函数，保证枚举顺序与结果完全一致
+//（设计 §5 “同一遍历”）。标识符/成员表达式/调用等非字符串节点返回空，绝不误抽动态数据。
+export function collectValueStringLeaves(node) {
+  if (!node) { return []; }
+  if (isStrLit(node) || node.type === 'TemplateLiteral') { return [node]; }
+  if (node.type === 'ConditionalExpression') {
+    return [...collectValueStringLeaves(node.consequent), ...collectValueStringLeaves(node.alternate)];
+  }
+  if (node.type === 'LogicalExpression') {
+    return [...collectValueStringLeaves(node.left), ...collectValueStringLeaves(node.right)];
+  }
+  return [];
 }
 export function hasRejectAncestor(path) {
   let p = path.parentPath;

@@ -21,7 +21,7 @@ for (const invFile of ['_inventory.tsv','_inventory_delta.tsv']){
   }
 }
 const zh = new Map(); const dupes=[];
-for (const f of ['_zh_1.tsv','_zh_2.tsv','_zh_3.tsv','_zh_4.tsv','_zh_5.tsv']){
+for (const f of ['_zh_1.tsv','_zh_2.tsv','_zh_3.tsv','_zh_4.tsv','_zh_5.tsv','_zh_6.tsv','_zh_7.tsv','_zh_8.tsv']){
   for (const line of readText(join(CAT,f)).split('\n')){
     if(!line.trim()) { continue; }
     const i = line.indexOf('|||');
@@ -49,6 +49,8 @@ for (let i=1;i<=inv.size;i++){
 console.log('inventory size:', inv.size, ' zh size:', zh.size);
 console.log('dupes:', dupes.length?dupes.join(','):'none');
 console.log('missing indices:', missing.length?missing.join(','):'none');
+// FIX-NOW：missing 也硬失败（与 build 一致）：每个 inventory 索引必须有译文分片
+if (missing.length) { throw new Error(`有 ${missing.length} 个 inventory 索引缺译文分片（见上方 missing indices）`); }
 console.log('placeholder EXTRA (中文多出,真 bug):', phExtra.length);
 for(const m of phExtra.slice(0,40)) { console.log(`  #${m.i} extra[${m.extra}] "${m.en.slice(0,50)}" | "${m.cn.slice(0,40)}"`); }
 console.log('placeholder dropped (中文少,允许,如复数后缀):', phDropped.length, phDropped.map(d=>`#${d.i}`).join(' '));
