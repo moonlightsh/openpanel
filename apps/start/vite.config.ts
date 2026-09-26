@@ -6,8 +6,10 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import viteTsConfigPaths from 'vite-tsconfig-paths';
+import opI18n from '../../packages/i18n-zh/plugin/index.ts';
 
 const plugins = [
+  opI18n(),
   viteTsConfigPaths({
     projects: ['./tsconfig.json'],
   }),

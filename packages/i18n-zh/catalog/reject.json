@@ -1,0 +1,97 @@
+[
+  {
+    "en": "group-[.toast]:text-muted-foreground",
+    "reason": "Tailwind 类名",
+    "kinds": "object"
+  },
+  {
+    "en": "⌘J",
+    "reason": "快捷键",
+    "kinds": "jsx"
+  },
+  {
+    "en": "AKIAIOSFODNN7EXAMPLE",
+    "reason": "示例密钥",
+    "kinds": "attr"
+  },
+  {
+    "en": "arn:aws:iam::123456789012:role/OpenPanelExportRole",
+    "reason": "示例 ARN",
+    "kinds": "attr"
+  },
+  {
+    "en": "bg-highlight text-white hover:bg-highlight/80",
+    "reason": "Tailwind 类名",
+    "kinds": "object"
+  },
+  {
+    "en": "funnelGroup",
+    "reason": "字段名",
+    "kinds": "zod"
+  },
+  {
+    "en": "funnelWindow",
+    "reason": "字段名",
+    "kinds": "zod"
+  },
+  {
+    "en": "Gradient",
+    "reason": "组件名(chart-defs 匹配)",
+    "kinds": "zod"
+  },
+  {
+    "en": "hello[at]openpanel.dev",
+    "reason": "邮箱地址",
+    "kinds": "jsx"
+  },
+  {
+    "en": "MM/DD/YYYY HH:mm",
+    "reason": "日期格式",
+    "kinds": "jsx"
+  },
+  {
+    "en": "Pattern",
+    "reason": "组件名(chart-defs 匹配)",
+    "kinds": "zod"
+  },
+  {
+    "en": "ProjectLink",
+    "reason": "组件名",
+    "kinds": "jsx"
+  },
+  {
+    "en": "sankeyExclude",
+    "reason": "字段名",
+    "kinds": "zod"
+  },
+  {
+    "en": "sankeyInclude",
+    "reason": "字段名",
+    "kinds": "zod"
+  },
+  {
+    "en": "sankeyMode",
+    "reason": "字段名",
+    "kinds": "zod"
+  },
+  {
+    "en": "sankeySteps",
+    "reason": "字段名",
+    "kinds": "zod"
+  },
+  {
+    "en": "ui-theme=",
+    "reason": "代码形态串",
+    "kinds": "zod"
+  },
+  {
+    "en": "url(",
+    "reason": "代码形态串",
+    "kinds": "zod"
+  },
+  {
+    "en": "var(--chart-label)",
+    "reason": "CSS 变量",
+    "kinds": "object"
+  }
+]

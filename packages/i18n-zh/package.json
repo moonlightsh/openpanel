@@ -1,0 +1,20 @@
+{
+  "name": "@openpanel-zh/i18n",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "OpenPanel 控制台汉化：构建期 AST 改写 Vite 插件 + 运行时（方案 B）",
+  "exports": {
+    "./plugin": "./plugin/index.ts"
+  },
+  "scripts": {
+    "i18n:extract": "node cli/extract.mjs"
+  },
+  "dependencies": {
+    "@babel/parser": "7.29.7",
+    "@babel/traverse": "7.29.0",
+    "@babel/types": "7.28.5",
+    "entities": "6.0.1",
+    "magic-string": "0.30.21"
+  }
+}
