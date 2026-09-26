@@ -2361,6 +2361,17 @@
       "apps/start/src/components/ui/data-table/data-table-config.ts:30"
     ]
   },
+  "JavaScript": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/components/integrations/forms/webhook-integration.tsx:228",
+      "apps/start/src/components/json-editor.tsx:213"
+    ]
+  },
   "JSONL (gzip)": {
     "count": 2,
     "kinds": [
@@ -2817,6 +2828,17 @@
       "apps/start/src/routes/_app.$organizationId.account._tabs.two-factor.tsx:102"
     ]
   },
+  "Report": {
+    "count": 2,
+    "kinds": [
+      "jsx",
+      "object"
+    ],
+    "refs": [
+      "apps/start/src/routes/_app.$organizationId.$projectId.dashboards_.$dashboardId.tsx:312",
+      "apps/start/src/routes/share.report.$shareId.tsx:61"
+    ]
+  },
   "Resume subscription": {
     "count": 2,
     "kinds": [
@@ -3176,6 +3198,15 @@
     "refs": [
       "apps/start/src/components/organization/edit-organization.tsx:38",
       "apps/start/src/routes/_app.$organizationId.settings.tsx:68"
+    ]
+  },
+  ", and billing resumes on {0}": {
+    "count": 1,
+    "kinds": [
+      "object"
+    ],
+    "refs": [
+      "packages/payments/src/subscription-state-meta.ts:136"
     ]
   },
   "({0}ms)": {
@@ -8056,15 +8087,6 @@
       "apps/start/src/components/organization/cancel-subscription-flow.tsx:29"
     ]
   },
-  "JavaScript": {
-    "count": 1,
-    "kinds": [
-      "object"
-    ],
-    "refs": [
-      "apps/start/src/components/integrations/forms/webhook-integration.tsx:228"
-    ]
-  },
   "JavaScript Transform": {
     "count": 1,
     "kinds": [
@@ -8072,6 +8094,15 @@
     ],
     "refs": [
       "apps/start/src/components/integrations/forms/webhook-integration.tsx:245"
+    ]
+  },
+  "JSON": {
+    "count": 1,
+    "kinds": [
+      "jsx"
+    ],
+    "refs": [
+      "apps/start/src/components/json-editor.tsx:213"
     ]
   },
   "Keep current event": {
@@ -10556,15 +10587,6 @@
     ],
     "refs": [
       "apps/start/src/components/report/sidebar/ReportFunnelSteps.tsx:101"
-    ]
-  },
-  "Report": {
-    "count": 1,
-    "kinds": [
-      "jsx"
-    ],
-    "refs": [
-      "apps/start/src/routes/_app.$organizationId.$projectId.dashboards_.$dashboardId.tsx:312"
     ]
   },
   "Report created": {

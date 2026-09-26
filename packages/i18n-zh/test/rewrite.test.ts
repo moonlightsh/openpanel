@@ -128,3 +128,24 @@ describe('rewriteFile — 条件/逻辑表达式中的静态字符串（Round-3 
     expect(leaves('fn()')).toEqual([]); // 调用不抽
   });
 });
+
+describe('rewriteFile — 嵌套模板表达式中的字符串（Round-4 BLOCKER）', () => {
+  // 用 § 占位避开字面量 $ + { （no-template-curly-in-string），运行时还原为真模板源码
+    const tpl = (s: string) => s.replace(/§/g, '$');
+
+  it('对象值外层模板的插值里嵌套条件模板：内层字符串也被包 __opT', () => {
+    const out = rw(
+      tpl('const m = { description: `Paused on §{d}§{r ? `, and billing resumes on §{r}` : ""}.` };'),
+    );
+    // 外层模板 -> __opT("Paused on {0}{1}.", d, ...)；内层分支 -> __opT(", and billing resumes on {0}", r)
+    expect(out).toContain('__opT("Paused on {0}{1}."');
+    expect(out).toContain('__opT(", and billing resumes on {0}"');
+    expect(out).toMatch(/\?[\s\S]*:/); // 三元结构保留
+  });
+
+  it('collectValueStringLeaves 递归模板插值：外层模板 + 内层条件模板都是叶子', () => {
+    const leaves = collectValueStringLeaves(parseExpression(tpl('`a §{x}§{f ? `b §{y}` : ""}`')));
+    const tplCount = leaves.filter((n: any) => n.type === 'TemplateLiteral').length;
+    expect(tplCount).toBe(2); // 外层 + 内层模板均为叶子
+  });
+});

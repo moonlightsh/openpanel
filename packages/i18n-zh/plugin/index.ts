@@ -99,7 +99,7 @@ interface Edit {
   replacement?: string;
   // JSX children 整句组合（§5.2）：延迟解析，子节点须递归改写后再拼装 __opT/__opTx，
   // 避免用未改写的原始子源码导致子元素文案漏译（B2）。
-  composite?: { fn: 'T' | 'Tx'; msgid: string; dynamics: any[] };
+  composite?: { fn: 'T' | 'Tx'; msgid: string; dynamics: any[]; jsxWrap?: boolean };
 }
 
 // 核心：解析 -> 遍历规则 -> 收集编辑 -> 去重叠 -> magic-string 替换。（导出供单测）
@@ -254,7 +254,7 @@ export function rewriteFile(code: string, rejectSet: Set<string>): { code: strin
 
 // 表达式上下文里的字符串/模板改写（toast / zod / 对象属性）；
 // 通过 collectValueStringLeaves 递归 Conditional/Logical 分支，与 extract 同源枚举。
-function rewriteExprString(code: string, node: any, edits: Edit[], accept: (m: string) => boolean) {
+function rewriteExprString(_code: string, node: any, edits: Edit[], accept: (m: string) => boolean) {
   for (const leaf of collectValueStringLeaves(node)) {
     if (isStrLit(leaf)) {
       const msgid = normalize(leaf.value);
@@ -265,10 +265,16 @@ function rewriteExprString(code: string, node: any, edits: Edit[], accept: (m: s
       if (!accept(msgid)) { continue; }
       edits.push({ start: leaf.start, end: leaf.end, replacement: buildT(msgid, []), needsRuntime: true });
     } else if (leaf.type === 'TemplateLiteral') {
-      const { msgid: raw, argSrcs } = tplParts(code, leaf);
-      const msgid = normalize(raw);
+      const msgid = normalize(tplToMsg(leaf));
       if (!accept(msgid)) { continue; }
-      edits.push({ start: leaf.start, end: leaf.end, replacement: buildT(msgid, argSrcs), needsRuntime: true });
+      // 延迟为 composite：模板插值表达式经 renderRange 递归改写，嵌套的条件/模板
+      // 字符串也会被翻译（修复嵌套模板中英混排 Round-4 BLOCKER）。值上下文不加 {}。
+      edits.push({
+        start: leaf.start,
+        end: leaf.end,
+        needsRuntime: true,
+        composite: { fn: 'T', msgid, dynamics: leaf.expressions.map((e: any) => ({ node: e })), jsxWrap: false },
+      });
     }
   }
 }
@@ -322,9 +328,12 @@ function resolveEdit(edit: Edit, all: Edit[], code: string): string {
     const partSrcs = edit.composite.dynamics.map((d: any) =>
       renderRange(code, d.node.start, d.node.end, all),
     );
-    return edit.composite.fn === 'Tx'
-      ? `{${buildTx(edit.composite.msgid, partSrcs)}}`
-      : `{${buildT(edit.composite.msgid, partSrcs)}}`;
+    const call =
+      edit.composite.fn === 'Tx'
+        ? buildTx(edit.composite.msgid, partSrcs)
+        : buildT(edit.composite.msgid, partSrcs);
+    // 值上下文（对象属性/toast 里的模板）不加 {}；JSX children 组合需 {} 包裹
+    return edit.composite.jsxWrap === false ? call : `{${call}}`;
   }
   return edit.replacement ?? '';
 }

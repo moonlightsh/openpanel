@@ -1512,5 +1512,6 @@
   "Your subscription will be canceled on {0}": "你的订阅将于 {0} 取消",
   "Your subscription will be paused at the end of the current period": "你的订阅将在当前周期结束时暂停",
   "Your subscription will be paused on {0}": "你的订阅将于 {0} 暂停",
-  "Your trial ends on {0}": "你的试用将于 {0} 结束"
+  "Your trial ends on {0}": "你的试用将于 {0} 结束",
+  ", and billing resumes on {0}": "，并于 {0} 恢复计费"
 }

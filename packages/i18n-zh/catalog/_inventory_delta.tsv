@@ -189,3 +189,5 @@
 1533	1	object	"Your subscription will be paused at the end of the current period"
 1534	1	object	"Your subscription will be paused on {0}"
 1535	1	object	"Your trial ends on {0}"
+1536	1	object	", and billing resumes on {0}"
+1537	1	jsx	"JSON"

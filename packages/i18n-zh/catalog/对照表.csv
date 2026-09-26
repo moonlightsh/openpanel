@@ -1534,3 +1534,5 @@
 1533,"Your subscription will be paused at the end of the current period","你的订阅将在当前周期结束时暂停",1,"object","packages/payments/src/subscription-state-meta.ts:148",""
 1534,"Your subscription will be paused on {0}","你的订阅将于 {0} 暂停",1,"object","packages/payments/src/subscription-state-meta.ts:144",""
 1535,"Your trial ends on {0}","你的试用将于 {0} 结束",1,"object","packages/payments/src/subscription-state-meta.ts:72",""
+1536,", and billing resumes on {0}","，并于 {0} 恢复计费",1,"object","packages/payments/src/subscription-state-meta.ts:136",""
+1537,"JSON","",1,"jsx","apps/start/src/components/json-editor.tsx:213","格式名"

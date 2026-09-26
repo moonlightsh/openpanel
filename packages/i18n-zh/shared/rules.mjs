@@ -100,7 +100,15 @@ export function tplToMsg(n) {
 //（设计 §5 “同一遍历”）。标识符/成员表达式/调用等非字符串节点返回空，绝不误抽动态数据。
 export function collectValueStringLeaves(node) {
   if (!node) { return []; }
-  if (isStrLit(node) || node.type === 'TemplateLiteral') { return [node]; }
+  if (isStrLit(node)) { return [node]; }
+  if (node.type === 'TemplateLiteral') {
+    // 模板本身是可译叶子；同时递归其插值表达式，捕获嵌套在
+    // 模板里的条件/模板字符串（如 `...paused${resumesAt ? `, and billing resumes on ${x}` : ''}.`），
+    // 消除嵌套模板导致的中英混排（Round-4 BLOCKER）。
+    const leaves = [node];
+    for (const e of node.expressions) { leaves.push(...collectValueStringLeaves(e)); }
+    return leaves;
+  }
   if (node.type === 'ConditionalExpression') {
     return [...collectValueStringLeaves(node.consequent), ...collectValueStringLeaves(node.alternate)];
   }
