@@ -70,9 +70,26 @@
 | 同时间戳事件及事件可同时匹配多个步骤 | 严格/非严格模式符合上述规则，多次执行结果一致。 |
 | 普通 Breakdown、`group.*`、Cohort Breakdown | 各桶之和与其归属规则一致；图表、查看用户及流失列表使用同一进入记录。 |
 | 旧报表、Session、Profile 及 Conversion 图 | 结果与变更前一致，旧配置无须迁移。 |
+| 空 `profile_id`、两台匿名设备各出一步 | 按设备拆成两个身份，不合并成一次转化（`1/0`）。 |
+| 空 `profile_id` 且空 `device_id` | 每个事件自成一个身份，孤立的后续步骤无法推进（`1/0`）。 |
+| 同一 `device_id`，首步具名、次步匿名 | `profile_id` 优先级高于 `device_id`，两者不合并（`1/0`）。 |
 
 验证分为纯匹配规则测试、SQL `EXPLAIN`、真实 ClickHouse 行为测试和目标规模性能测试。性能测试至少覆盖 30 天约 1000 万事件、多次进入的高频用户、含 OR 与属性过滤的步骤、Breakdown、查看用户及并发报表；记录查询 p95、峰值内存、扫描行数与失败率。性能门槛须在上线前结合部署机器和既有报表基线确定；设计文档本身不代表已经通过规模验证。
 
 ## 实施边界
 
 本设计不修改事件采集、会话划分、历史身份合并、Conversion 图统计口径或原始事件保留策略。若真实数据发现空 `profile_id`、重复事件 ID 或极端高频用户导致身份混合或内存失控，应先补充明确的处理规则和行为测试，再开放 Event 选项。
+
+### 匿名身份处理规则（前置条件已满足）
+
+Event 模式的分组键按以下优先级取值，实现见 `funnel.service.ts` 的 `buildFunnelCte`（`group === 'event'`）：
+
+```text
+user_key = profile_id
+         -> __d_<device_id>    （profile_id 为空）
+         -> __e_<event_id>     （profile_id 与 device_id 均为空）
+```
+
+要点：空 `profile_id` **不会**并成同一个用户；缺少设备标识时退化为“每个事件自成一个身份”，即匿名孤立事件无法互相推进漏斗，宁可少计也不虚增转化。
+
+对应行为测试：`packages/db/src/services/funnel-event-anon.test.ts`（真实 ClickHouse）。每个用例都构造成“若把空 `profile_id` 合并成同一用户则数值翻转”，已用两种反向改动（去掉 fallback、令 `device_id` 优先）验证测试会失败而非空过。重复事件 ID 的对应测试见 `funnel-event-dedup.test.ts`；高频用户的内存与规模门槛仍属未完成的性能验证项。

@@ -153,7 +153,14 @@ beforeAll(async () => {
       values: testEvents,
       format: 'JSONEachRow',
     });
-  } catch {
+  } catch (error) {
+    // Only an unreachable ClickHouse is an environment gap worth skipping for.
+    // Once `SELECT 1` has answered, a failing DELETE/INSERT is a real defect
+    // (schema drift, permissions, malformed fixture) — rethrow so the suite
+    // fails loudly instead of reporting every assertion as skipped.
+    if (chReachable) {
+      throw error;
+    }
     chReachable = false;
   }
 });
@@ -166,11 +173,25 @@ afterAll(async () => {
   }
 });
 
-describe('Funnel Event Grouping — Behavioral Verification', () => {
-  it('scenario A B A B (U1): event mode yields 2/2 vs session/profile mode 1/1', async () => {
+// Reports as skipped rather than passed when CH is unreachable — a test that
+// returns before asserting anything should not read as green. In CI a real
+// ClickHouse is provisioned (docker-build.yml `clickhouse` service), so a skip
+// there would mean the behavioural contract silently went unverified: fail instead.
+const itCH = (name: string, fn: () => Promise<void>) =>
+  it(name, async (ctx) => {
     if (!chReachable) {
-      return;
+      if (process.env.CI) {
+        throw new Error(
+          'ClickHouse unreachable at CLICKHOUSE_URL; CI must run these against a real server',
+        );
+      }
+      ctx.skip('ClickHouse not reachable at CLICKHOUSE_URL');
     }
+    await fn();
+  });
+
+describe('Funnel Event Grouping — Behavioral Verification', () => {
+  itCH('scenario A B A B (U1): event mode yields 2/2 vs session/profile mode 1/1', async () => {
     // Test U1 in isolation by filtering on properties.user = 'eg-u1'
     const [eventRes] = await runFunnel({
       funnelGroup: 'event',
@@ -206,10 +227,7 @@ describe('Funnel Event Grouping — Behavioral Verification', () => {
     expect(profileRes!.steps.map((s) => s.count)).toEqual([1, 1]);
   });
 
-  it('scenario A A B (U2): event mode yields 2/1 (B1 only advances one entry)', async () => {
-    if (!chReachable) {
-      return;
-    }
+  itCH('scenario A A B (U2): event mode yields 2/1 (B1 only advances one entry)', async () => {
     const [eventRes] = await runFunnel({
       funnelGroup: 'event',
       series: [
@@ -221,10 +239,7 @@ describe('Funnel Event Grouping — Behavioral Verification', () => {
     expect(eventRes!.steps.map((s) => s.count)).toEqual([2, 1]);
   });
 
-  it('scenario A B B (U3): event mode yields 1/1 (second B does not advance)', async () => {
-    if (!chReachable) {
-      return;
-    }
+  itCH('scenario A B B (U3): event mode yields 1/1 (second B does not advance)', async () => {
     const [eventRes] = await runFunnel({
       funnelGroup: 'event',
       series: [
@@ -236,10 +251,7 @@ describe('Funnel Event Grouping — Behavioral Verification', () => {
     expect(eventRes!.steps.map((s) => s.count)).toEqual([1, 1]);
   });
 
-  it('scenario window expiration (U4): event mode stops at level 1 (1/0)', async () => {
-    if (!chReachable) {
-      return;
-    }
+  itCH('scenario window expiration (U4): event mode stops at level 1 (1/0)', async () => {
     const [eventRes] = await runFunnel({
       funnelGroup: 'event',
       funnelWindow: 24, // 24 hours
@@ -252,10 +264,7 @@ describe('Funnel Event Grouping — Behavioral Verification', () => {
     expect(eventRes!.steps.map((s) => s.count)).toEqual([1, 0]);
   });
 
-  it('breakdown attribution at step 1 (U5): each entry takes step 1 attribute', async () => {
-    if (!chReachable) {
-      return;
-    }
+  itCH('breakdown attribution at step 1 (U5): each entry takes step 1 attribute', async () => {
     // U5 has A(pro)->B(free)->A(free)->B(pro)
     // Entry 1 (created by A@1h) had plan=pro -> should be attributed to 'pro'
     // Entry 2 (created by A@3h) had plan=free -> should be attributed to 'free'
@@ -281,10 +290,7 @@ describe('Funnel Event Grouping — Behavioral Verification', () => {
     expect(freeSeries!.steps.map((s) => s.count)).toEqual([1, 1]);
   });
 
-  it('combined funnel across all users matches expected aggregate numbers', async () => {
-    if (!chReachable) {
-      return;
-    }
+  itCH('combined funnel across all users matches expected aggregate numbers', async () => {
     // U1: 2/2, U2: 2/1, U3: 1/1, U4: 1/0, U5: 2/2, U7: 1/0 (strict)
     // Note: U6 only has step_a, so U6 contributes 2 at step 1 and 0 at step 2.
     // Total step 1: U1(2) + U2(2) + U3(1) + U4(1) + U5(2) + U6(2) + U7(1) = 11
@@ -303,10 +309,7 @@ describe('Funnel Event Grouping — Behavioral Verification', () => {
     expect(profileRes!.steps.map((s) => s.count)).toEqual([7, 4]);
   });
 
-  it('scenario A -> A (U6): current event advances prior entry while creating new entry', async () => {
-    if (!chReachable) {
-      return;
-    }
+  itCH('scenario A -> A (U6): current event advances prior entry while creating new entry', async () => {
     // Both steps look for step_a
     const [res] = await runFunnel({
       funnelGroup: 'event',
@@ -326,10 +329,7 @@ describe('Funnel Event Grouping — Behavioral Verification', () => {
     expect(res!.steps.map((s) => s.count)).toEqual([2, 1]);
   });
 
-  it('scenario timestamp ordering: strict rejects same-ts; non-strict accepts', async () => {
-    if (!chReachable) {
-      return;
-    }
+  itCH('scenario timestamp ordering: strict rejects same-ts; non-strict accepts', async () => {
     // In default strict mode, same-ts event does not advance
     const [strictRes] = await runFunnel({
       funnelGroup: 'event',
@@ -358,10 +358,7 @@ describe('Funnel Event Grouping — Behavioral Verification', () => {
     }
   });
 
-  it('profiles query in event mode: returns correct occurrence counts and dropoffs', async () => {
-    if (!chReachable) {
-      return;
-    }
+  itCH('profiles query in event mode: returns correct occurrence counts and dropoffs', async () => {
     // Build the query via buildFunnelBase
     const { query } = await funnelService.buildFunnelBase({
       projectId: PROJECT_ID,

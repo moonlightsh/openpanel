@@ -111,7 +111,14 @@ beforeAll(async () => {
       values: events,
       format: 'JSONEachRow',
     });
-  } catch {
+  } catch (error) {
+    // Only an unreachable ClickHouse is an environment gap worth skipping for.
+    // Once `SELECT 1` has answered, a failing DELETE/INSERT is a real defect
+    // (schema drift, permissions, malformed fixture) — rethrow so the suite
+    // fails loudly instead of reporting every assertion as skipped.
+    if (chReachable) {
+      throw error;
+    }
     chReachable = false;
   }
 });
@@ -124,18 +131,29 @@ afterAll(async () => {
   }
 });
 
-describe('Funnel Event Grouping — duplicate storage rows', () => {
-  it('duplicate first-step row does not create a second entry (1/1)', async () => {
+// Reports as skipped rather than passed when CH is unreachable — a test that
+// returns before asserting anything should not read as green. In CI a real
+// ClickHouse is provisioned (docker-build.yml `clickhouse` service), so a skip
+// there would mean the behavioural contract silently went unverified: fail instead.
+const itCH = (name: string, fn: () => Promise<void>) =>
+  it(name, async (ctx) => {
     if (!chReachable) {
-      return;
+      if (process.env.CI) {
+        throw new Error(
+          'ClickHouse unreachable at CLICKHOUSE_URL; CI must run these against a real server',
+        );
+      }
+      ctx.skip('ClickHouse not reachable at CLICKHOUSE_URL');
     }
+    await fn();
+  });
+
+describe('Funnel Event Grouping — duplicate storage rows', () => {
+  itCH('duplicate first-step row does not create a second entry (1/1)', async () => {
     expect(await runEventFunnel('dup-first')).toEqual([1, 1]);
   });
 
-  it('duplicate later-step row does not advance a second entry (2/1)', async () => {
-    if (!chReachable) {
-      return;
-    }
+  itCH('duplicate later-step row does not advance a second entry (2/1)', async () => {
     expect(await runEventFunnel('dup-later')).toEqual([2, 1]);
   });
 });
