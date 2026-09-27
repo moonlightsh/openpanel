@@ -236,56 +236,92 @@ export class FunnelService {
       process.env.FUNNEL_NON_STRICT_ORDERING === '1' ||
       process.env.FUNNEL_NON_STRICT_ORDERING === 'true';
     const orderCond = nonStrictOrdering
-      ? '(ev.3 > e.3 OR (ev.3 = e.3 AND ev.2 != e.4))'
-      : 'ev.3 > e.3';
+      ? '(ev.2 > e.3 OR (ev.2 = e.3 AND ev.1 != e.4))'
+      : 'ev.2 > e.3';
 
     const bFields = Array.from(
       { length: breakdownCount },
       (_, i) => `b_${i}`,
     );
 
-    const groupArrayTuple = [
-      'user_key',
-      'id',
-      'ts',
-      'flags',
-      ...bFields,
-    ].join(', ');
+    // Tuple fed to the fold: (id, ts, flags, breakdown values...). `user_key`
+    // is deliberately NOT carried here — it is constant within each
+    // `GROUP BY user_key` group and is never read inside the fold, so keeping
+    // it would just bloat every element of groupArray/acc (a real per-event
+    // saving for high-frequency users). The output's profile_id comes from the
+    // grouped `user_key` column instead. Indices below: id=ev.1, ts=ev.2,
+    // flags=ev.3, b_i=ev.(4+i).
+    const groupArrayTuple = ['id', 'ts', 'flags', ...bFields].join(', ');
 
-    const accTupleType = `Array(Tuple(String, UInt64, UInt64, String, UInt8${breakdownCount > 0 ? ', ' + Array(breakdownCount).fill('String').join(', ') : ''}))`;
+    // One funnel entry: (entry_event_id, first_step_ts, last_matched_ts,
+    // last_matched_event_id, level, breakdown values...). The accumulator is a
+    // pair of arrays — `active` entries that can still advance, and `done`
+    // entries that are complete OR out of window and therefore retired from
+    // candidate scanning. Splitting them turns the per-event scan from
+    // O(all-entries) into O(active-entries): a high-frequency user whose
+    // entries expire after `funnelWindow` (or complete) no longer re-scans
+    // them on every subsequent event. `done` entries keep their tuple (level +
+    // breakdown) so the histogram and breakdown buckets are unchanged.
+    const entryTupleType = `Tuple(String, UInt64, UInt64, String, UInt8${
+      breakdownCount > 0
+        ? `, ${Array.from({ length: breakdownCount }, () => 'String').join(', ')}`
+        : ''
+    })`;
+
+    // An entry stays active only while it is unfinished AND still inside the
+    // window relative to the current event; its logical complement is retired.
+    // Written as exact De Morgan complements so every entry lands in exactly
+    // one of keep/retire — no entry is dropped or double-counted.
+    const keepCond = `e.5 < ${totalSteps} AND (ev.2 - e.2) <= ${funnelWindowMilliseconds}`;
+    const retireCond = `e.5 >= ${totalSteps} OR (ev.2 - e.2) > ${funnelWindowMilliseconds}`;
 
     const advanceTuple = [
       'e.1',
       'e.2',
-      'ev.3',
       'ev.2',
+      'ev.1',
       'toUInt8(e.5 + 1)',
       ...Array.from({ length: breakdownCount }, (_, i) => `e.${6 + i}`),
     ].join(', ');
 
     const newEntryTuple = [
+      'ev.1',
       'ev.2',
-      'ev.3',
-      'ev.3',
       'ev.2',
+      'ev.1',
       'toUInt8(1)',
-      ...Array.from({ length: breakdownCount }, (_, i) => `ev.${5 + i}`),
+      ...Array.from({ length: breakdownCount }, (_, i) => `ev.${4 + i}`),
     ].join(', ');
 
+    // The state machine's determinism depends on events arriving in (ts, id)
+    // order. ClickHouse `groupArray` does NOT guarantee it preserves the
+    // subquery ORDER BY under parallel/multi-part reads, so sort the grouped
+    // array explicitly before folding rather than trusting read order.
+    const orderedInput = `arraySort(x -> (x.2, x.1), groupArray((${groupArrayTuple})))`;
+
+    // acc = (active, done). Per event: find the first advanceable active entry
+    // (earliest first-step by construction — new entries are appended in
+    // (ts,id) order and arrayFilter preserves order), advance it, then append
+    // a new entry when the event matches step 1. Finally repartition into
+    // still-active vs retired. The old `NOT has(...)` new-entry guard is gone:
+    // the inner stream is deduplicated by id (see the wrapper below), so a
+    // step-1 event's id can never collide with an existing entry's id.
     const stateMachineSql = `
 arrayFold(
   (acc, ev) -> (
+    (acc.1 AS active),
+    (acc.2 AS done),
     (
       indexOf(
         arrayMap(
           e -> (
             e.5 < ${totalSteps}
-            AND ev.4[e.5 + 1] = 1
-            AND ev.3 >= e.2
-            AND (ev.3 - e.2) <= ${funnelWindowMilliseconds}
+            AND ev.3[e.5 + 1] = 1
+            AND ev.2 >= e.2
+            AND (ev.2 - e.2) <= ${funnelWindowMilliseconds}
             AND ${orderCond}
           ),
-          acc
+          active
         ),
         1
       ) AS cand_idx
@@ -295,24 +331,39 @@ arrayFold(
         cand_idx > 0,
         arrayMap(
           (e, i) -> if(i == cand_idx, (${advanceTuple}), e),
-          acc,
-          arrayEnumerate(acc)
+          active,
+          arrayEnumerate(active)
         ),
-        acc
-      ) AS acc_adv
+        active
+      ) AS active_adv
     ),
-    if(
-      ev.4[1] = 1 AND NOT has(arrayMap(e -> e.1, acc_adv), ev.2),
-      arrayConcat(acc_adv, [(${newEntryTuple})]),
-      acc_adv
-    )
-  ).3,
-  groupArray((${groupArrayTuple})),
-  CAST([], '${accTupleType}')
+    (
+      if(
+        ev.3[1] = 1,
+        arrayConcat(active_adv, [(${newEntryTuple})]),
+        active_adv
+      ) AS active_new
+    ),
+    (arrayFilter(e -> (${keepCond}), active_new) AS keep),
+    (arrayFilter(e -> (${retireCond}), active_new) AS retire),
+    (keep, arrayConcat(done, retire))
+  ).8,
+  ${orderedInput},
+  (CAST([], 'Array(${entryTupleType})'), CAST([], 'Array(${entryTupleType})'))
 )`.trim();
 
     const groupByClause = hasGroup ? 'user_key, _group_id' : 'user_key';
     const groupSelectClause = hasGroup ? '_group_id, ' : '';
+
+    // Deduplicate physical storage rows by event id BEFORE folding. `events`
+    // is a plain MergeTree read without FINAL, so a retried/double-flushed
+    // insert leaves two identical rows with the same id; without this a
+    // duplicate step row could advance a second waiting entry and fabricate a
+    // conversion (design: "事件 ID 相同的重复存储行不得制造多次进入"). When
+    // group.* fans events out per group we keep one row per (id, group) so an
+    // event still counts once in each group it belongs to.
+    const dedupKey = hasGroup ? 'id, _group_id' : 'id';
+    const dedupedInnerSql = `SELECT * FROM (${innerEventsSql}) LIMIT 1 BY ${dedupKey}`;
 
     const outerSelects = [
       'entry.1 AS entry_event_id',
@@ -330,9 +381,14 @@ SELECT
 FROM (
   SELECT
     user_key,
-    ${groupSelectClause}${stateMachineSql} AS entries
-  FROM (${innerEventsSql})
-  GROUP BY ${groupByClause}
+    ${groupSelectClause}arrayConcat(sm.1, sm.2) AS entries
+  FROM (
+    SELECT
+      user_key,
+      ${groupSelectClause}${stateMachineSql} AS sm
+    FROM (${dedupedInnerSql})
+    GROUP BY ${groupByClause}
+  )
 )
 ARRAY JOIN entries AS entry
 `.trim();
@@ -686,6 +742,28 @@ ARRAY JOIN entries AS entry
         hasGroup: needsGroupArrayJoin,
       });
       query.with('session_funnel', sessionFunnelSql);
+
+      // Optional operator guardrails for the in-memory arrayFold over a
+      // high-frequency user's event stream (design flags "极端高频用户导致
+      // 内存失控"). Both are OFF by default, so results and existing
+      // behavior are unchanged; a deployment can set them to fail a runaway
+      // query fast (max_memory_usage) or spill the per-user GROUP BY state to
+      // disk (max_bytes_before_external_group_by) instead of pressuring the
+      // whole server. Neither setting changes the computed funnel numbers.
+      // Scoped to event mode so session/profile paths are untouched.
+      const eventSettings: Record<string, string> = {};
+      const maxMemoryBytes = process.env.FUNNEL_EVENT_MAX_MEMORY_BYTES;
+      if (maxMemoryBytes) {
+        eventSettings.max_memory_usage = maxMemoryBytes;
+      }
+      const externalGroupByBytes =
+        process.env.FUNNEL_EVENT_EXTERNAL_GROUP_BY_BYTES;
+      if (externalGroupByBytes) {
+        eventSettings.max_bytes_before_external_group_by = externalGroupByBytes;
+      }
+      if (Object.keys(eventSettings).length > 0) {
+        query.settings(eventSettings);
+      }
     } else {
       query.with('session_funnel', funnelCte);
     }

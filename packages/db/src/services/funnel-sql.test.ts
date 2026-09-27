@@ -716,14 +716,14 @@ describe('funnel.service / buildFunnelBase — event grouping (group === "event"
   it('orders events in strict mode by default', async () => {
     vi.stubEnv('FUNNEL_NON_STRICT_ORDERING', '');
     const sql = await buildEventChartSql();
-    expect(sql).toContain('ev.3 > e.3');
-    expect(sql).not.toContain('ev.3 = e.3 AND ev.2 != e.4');
+    expect(sql).toContain('ev.2 > e.3');
+    expect(sql).not.toContain('ev.2 = e.3 AND ev.1 != e.4');
   });
 
   it('orders events in non-strict mode when FUNNEL_NON_STRICT_ORDERING is set', async () => {
     vi.stubEnv('FUNNEL_NON_STRICT_ORDERING', '1');
     const sql = await buildEventChartSql();
-    expect(sql).toContain('(ev.3 > e.3 OR (ev.3 = e.3 AND ev.2 != e.4))');
+    expect(sql).toContain('(ev.2 > e.3 OR (ev.2 = e.3 AND ev.1 != e.4))');
     vi.unstubAllEnvs();
   });
 
@@ -732,7 +732,7 @@ describe('funnel.service / buildFunnelBase — event grouping (group === "event"
       breakdowns: [breakdown('properties.source')],
     });
     expect(sql).toContain("ifNull(toString(properties['source']), '') as b_0");
-    expect(sql).toContain('groupArray((user_key, id, ts, flags, b_0))');
+    expect(sql).toContain('groupArray((id, ts, flags, b_0))');
     expect(sql).toContain('entry.6 AS b_0');
   });
 
@@ -740,7 +740,7 @@ describe('funnel.service / buildFunnelBase — event grouping (group === "event"
     const sql = await buildEventChartSql({
       breakdowns: [breakdown('properties.source'), breakdown('properties.plan')],
     });
-    expect(sql).toContain('groupArray((user_key, id, ts, flags, b_0, b_1))');
+    expect(sql).toContain('groupArray((id, ts, flags, b_0, b_1))');
     expect(sql).toContain('entry.6 AS b_0');
     expect(sql).toContain('entry.7 AS b_1');
   });
